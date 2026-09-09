@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff"><meta name="robots" content="noindex,nofollow,noarchive"><title>Astro Cars | Admin</title>
+<style>:root{--bg:#f6f8fb;--card:#fff;--ink:#101828;--muted:#667085;--line:#e4e7ec;--soft:#f2f4f7;--green:#16a34a;--blue:#2563eb;--red:#dc2626;--shadow:0 12px 35px rgba(16,24,40,.07)}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}.wrap{width:min(1180px,94%);margin:auto}header{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--line);background:#fffffff2;backdrop-filter:blur(14px)}.nav{min-height:72px;display:flex;justify-content:space-between;align-items:center;gap:15px}.brand{display:flex;gap:11px;align-items:center}.mark{width:44px;height:44px;border-radius:13px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:950}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.back{color:#101828;text-decoration:none;border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:11px;font-weight:800}.topstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 4px 20px rgba(16,24,40,.04)}.stat small{color:var(--muted)}.stat b{display:block;font-size:25px;margin-top:5px}main{padding:8px 0 60px}.title{margin-bottom:18px}.title h1{font-size:30px;margin:0 0 6px}.title p{color:var(--muted);margin:0}.panel{background:#fff;border:1px solid var(--line);border-radius:19px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}.panel h2{margin:0 0 16px;font-size:19px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}.label{display:block;color:#344054;font-size:12px;font-weight:800;margin:0 0 7px}.input,.select,.area{width:100%;background:#fff;color:#101828;border:1px solid #dfe3ea;border-radius:11px;padding:12px;outline:0}.area{min-height:110px;resize:vertical}.input:focus,.select:focus,.area:focus{border-color:#98a2b3;box-shadow:0 0 0 4px #f2f4f7}.upload{border:1px dashed #bfc5cf;border-radius:15px;padding:18px;background:#fafbfc}.drop{border:2px dashed #d0d5dd;border-radius:13px;padding:22px;text-align:center;background:#fff;cursor:pointer;color:#667085}.drop.drag{border-color:var(--blue);background:#eff6ff}.upload input{width:100%}.previews{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.prev{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:10px;background:#eef1f5;border:1px solid var(--line)}.prev img{width:100%;height:100%;object-fit:cover}.num{position:absolute;top:5px;right:5px;background:#111827dd;color:#fff;padding:5px 7px;border-radius:7px;font-size:11px}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;color:#101828;padding:12px 16px;border-radius:11px;font-weight:850;cursor:pointer}.btn:hover{transform:translateY(-1px)}.primary{background:#111827;color:#fff;border-color:#111827}.green{background:var(--green);color:#fff;border-color:var(--green)}.danger{background:#fff0f0;color:#b42318;border-color:#fecaca}.notice{padding:13px 15px;border-radius:12px;background:var(--soft);color:#475467;line-height:1.7;font-size:13px}.ok{background:#ecfdf3;border:1px solid #abefc6;color:#067647}.err{background:#fef3f2;border:1px solid #fecdca;color:#b42318}.progress{height:8px;background:#eaecf0;border-radius:99px;overflow:hidden;margin-top:10px}.bar{height:100%;width:0;background:#16a34a;transition:.2s}.cars{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.carRow{display:flex;gap:12px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:14px}.carRow img{width:110px;height:80px;object-fit:cover;border-radius:9px;background:#eef1f5}.carRow h3{margin:0 0 7px}.carRow p{margin:0;color:var(--muted);font-size:12px}.rowBtns{margin-top:8px;display:flex;gap:7px}.rowBtns button{padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#101828;cursor:pointer}.hint{font-size:11px;color:#7f8995;margin-top:6px}.searchbar{display:grid;grid-template-columns:1fr 150px;gap:9px;margin:14px 0}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(120px);background:#111827;color:#fff;padding:12px 18px;border-radius:999px;box-shadow:var(--shadow);z-index:100;transition:.25s;max-width:92%;text-align:center}.toast.show{transform:translateX(-50%) translateY(0)}
+@media(max-width:760px){.grid,.cars{grid-template-columns:1fr}.topstats{grid-template-columns:1fr 1fr}.previews{grid-template-columns:repeat(2,1fr)}.full{grid-column:auto}.searchbar{grid-template-columns:1fr}.nav .back{font-size:12px}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><div class="brand"><div class="mark">AS</div><div><b>ASTRO CARS</b><small>لوحة التحكم الخاصة</small></div></div><a class="back" href="index.html">← الموقع</a></div></header>
+<main><div class="wrap">
+<div class="topstats"><div class="stat"><small>السيارات</small><b id="statCars">0</b></div><div class="stat"><small>الصور</small><b id="statImages">0</b></div><div class="stat"><small>متوسط السعر</small><b id="statAvg">0 DH</b></div><div class="stat"><small>الحالة</small><b id="statState" style="font-size:17px">جاهز</b></div></div>
+<div class="title"><h1>لوحة التحكم</h1><p>إضافة وإدارة السيارات مباشرة من هاتفك — مع ضغط تلقائي للصور، معاينة، بحث وترتيب ومسودة محلية.</p></div>
+
+<div class="panel">
+<h2>🔐 إعداد GitHub — مرة واحدة</h2>
+<div class="grid">
+<div><label class="label">GitHub Username</label><input id="owner" class="input" placeholder="مثال: shraf"></div>
+<div><label class="label">Repository</label><input id="repo" class="input" placeholder="مثال: astro-cars"></div>
+<div><label class="label">Branch</label><input id="branch" class="input" value="main"></div>
+<div><label class="label">GitHub Token</label><input id="token" class="input" type="password" placeholder="ضع Token هنا"></div>
+<div class="full"><div class="notice">الـRepository مضبوط على xnmap1234-lang/astro-cars. دخل Token فالمربع وخليه محفوظ غير فـهذا المتصفح. ما تحطش Token حقيقي داخل ملف admin.html المنشور للعموم.</div><div class="actions" style="margin-top:10px"><button class="btn" type="button" onclick="saveCfg()">💾 حفظ الإعدادات</button></div></div>
+</div>
+</div>
+
+<div class="panel">
+<h2>🚘 نشر سيارة جديدة — حتى 8 صور</h2>
+<div class="grid">
+<div><label class="label">الماركة *</label><input id="make" class="input" placeholder="Dacia"></div>
+<div><label class="label">الموديل *</label><input id="model" class="input" placeholder="Sandero Stepway"></div>
+<div><label class="label">السنة *</label><input id="year" class="input" type="number" placeholder="2017"></div>
+<div><label class="label">الكيلومتراج *</label><input id="km" class="input" type="number" placeholder="84000"></div>
+<div><label class="label">الثمن بالدرهم *</label><input id="price" class="input" type="number" placeholder="122000"></div>
+<div><label class="label">الوقود</label><select id="fuel" class="select"><option>Diesel</option><option>Essence</option><option>Hybrid</option><option>Electric</option></select></div>
+<div><label class="label">ناقل الحركة</label><select id="transmission" class="select"><option>Manual</option><option>Automatic</option></select></div>
+<div><label class="label">رقم واتساب</label><input id="wa" class="input" value="212642410917"></div>
+<div class="full"><label class="label">الوصف والتجهيزات</label><textarea id="desc" class="area" placeholder="مثال: حالة ممتازة، صباغة أصلية، كاميرا خلفية..."></textarea></div>
+<div class="full upload"><label class="label">الصور — من 1 حتى 8</label><div id="drop" class="drop">📷 اضغط هنا لاختيار الصور أو اسحب الصور إلى هذه المنطقة<input id="photos" type="file" accept="image/*" multiple hidden></div><div class="hint">الأفضل صور واضحة. السكريبت يضغطها إلى JPEG قبل الرفع لتقليل الحجم.</div><div id="previews" class="previews"></div></div>
+<div class="full"><div class="actions"><button class="btn red" id="publish">🚀 نشر السيارة</button><button class="btn" id="clear" type="button">مسح</button><button class="btn" id="draft" type="button">💾 حفظ مسودة</button></div></div>
+<div class="full"><div id="status" class="notice">جاهز للنشر.</div><div class="progress"><div id="bar" class="bar"></div></div></div>
+</div>
+</div>
+
+<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">📋 السيارات المنشورة</h2><button class="btn" type="button" onclick="reloadCars()">🔄 تحديث</button></div><div class="searchbar"><input id="carSearch" class="input" placeholder="ابحث بالماركة أو الموديل..." oninput="renderCars()"><select id="carSort" class="select" onchange="renderCars()"><option value="new">الأحدث</option><option value="price">السعر</option><option value="km">الكيلومترات</option></select></div><div id="cars" class="cars"></div></div>
+</div></main>
+<div id="toast" class="toast"></div>
+<script>
+/* ===== ASTRO CARS SETTINGS =====
+   بعد ما تعطيني بيانات GitHub نقدر نرجع لك هذا الملف جاهز بهاد القيم.
+*/
+const CONFIG={OWNER:"xnmap1234-lang",REPO:"astro-cars",BRANCH:"main",TOKEN:""};
+// Security: token is NEVER stored in localStorage or embedded in this file.
+let sessionToken="";
+const API="https://api.github.com";
+const INDEX_PATH="index.html";
+let catalog=[],selectedFiles=[];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const headers=token=>({"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28"});
+window.addEventListener("beforeunload",()=>{sessionToken="";});
+window.addEventListener("pagehide",()=>{sessionToken="";});
+const setStatus=(t,type="")=>{$("#status").textContent=t;$("#status").className="notice "+type;document.getElementById("statState").textContent=type==="err"?"خطأ":type==="ok"?"متصل":"يعمل";};
+const setBar=n=>$("#bar").style.width=n+"%";
+
+function cfg(){
+ const saved=JSON.parse(localStorage.getItem("astroCarsGitHub")||"{}");
+ return {
+  owner: CONFIG.OWNER || saved.owner || $("#owner").value.trim(),
+  repo: CONFIG.REPO || saved.repo || $("#repo").value.trim(),
+  branch: CONFIG.BRANCH || saved.branch || $("#branch").value.trim() || "main",
+  token: sessionToken || CONFIG.TOKEN || $("#token").value.trim()
+ };
+}
+function saveCfg(){
+ const owner=CONFIG.OWNER||$("#owner").value.trim(), repo=CONFIG.REPO||$("#repo").value.trim(), branch=CONFIG.BRANCH||$("#branch").value.trim()||"main", token=$("#token").value.trim();
+ if(!owner||!repo||!token)return setStatus("⚠️ دخل GitHub Token أولاً.","err");
+ sessionToken=token;
+ localStorage.setItem("astroCarsGitHub",JSON.stringify({owner,repo,branch}));
+ $("#token").value="";
+ setStatus("✅ تم حفظ الإعدادات. Token باقي غير فجلسة المتصفح.","ok");
+}
+$("#token").addEventListener("change",saveCfg);
+function previewFiles(){ $("#previews").innerHTML=selectedFiles.map((f,i)=>`<div class="prev"><img src="${URL.createObjectURL(f)}"><span class="num">${i+1}</span></div>`).join(""); }
+$("#drop").onclick=()=>$("#photos").click();
+$("#photos").addEventListener("change",e=>{selectedFiles=[...e.target.files].slice(0,8);previewFiles();if(e.target.files.length>8)setStatus("تم اختيار أول 8 صور فقط.","");});
+["dragenter","dragover"].forEach(ev=>$("#drop").addEventListener(ev,e=>{e.preventDefault();$("#drop").classList.add("drag")}));
+["dragleave","drop"].forEach(ev=>$("#drop").addEventListener(ev,e=>{e.preventDefault();$("#drop").classList.remove("drag")}));
+$("#drop").addEventListener("drop",e=>{selectedFiles=[...e.dataTransfer.files].filter(f=>f.type.startsWith("image/")).slice(0,8);previewFiles()});
+$("#draft").onclick=()=>{localStorage.setItem("astroDraft",JSON.stringify(Object.fromEntries(["make","model","year","km","price","fuel","transmission","wa","desc"].map(id=>[id,$("#"+id).value]))));setStatus("💾 تم حفظ المسودة على هذا الهاتف.","ok")};
+try{const d=JSON.parse(localStorage.getItem("astroDraft")||"null");if(d)for(const k in d)if($("#"+k))$("#"+k).value=d[k]}catch{}
+$("#clear").onclick=()=>{["make","model","year","km","price","desc"].forEach(id=>$("#"+id).value="");$("#photos").value="";selectedFiles=[];$("#previews").innerHTML="";setStatus("تم مسح النموذج.")};
+
+async function ghGet(c,path){
+ const r=await fetch(`${API}/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}?ref=${encodeURIComponent(c.branch)}`,{headers:headers(c.token)});
+ if(r.status===404)return null;
+ if(!r.ok)throw new Error("GitHub رفض قراءة "+path+" ("+r.status+")");
+ return r.json();
+}
+async function ghPut(c,path,b64,message,sha){
+ const body={message,content:b64,branch:c.branch};if(sha)body.sha=sha;
+ const r=await fetch(`${API}/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}`,{method:"PUT",headers:{...headers(c.token),"Content-Type":"application/json"},body:JSON.stringify(body)});
+ if(!r.ok){let msg=await r.text();throw new Error("GitHub: "+msg.slice(0,450))}
+ return r.json();
+}
+function decodeBase64(s){
+ const bytes=Uint8Array.from(atob(s.replace(/\n/g,"")),c=>c.charCodeAt(0));
+ return new TextDecoder().decode(bytes);
+}
+function encodeBase64(s){
+ const bytes=new TextEncoder().encode(s);let bin="";bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin);
+}
+async function blob64(blob){return new Promise((res,rej)=>{const r=new FileReader;r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(blob)})}
+async function compress(file){
+ const img=await new Promise((res,rej)=>{const i=new Image;i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file)});
+ const max=1800,scale=Math.min(1,max/Math.max(img.width,img.height)),cv=document.createElement("canvas");cv.width=Math.round(img.width*scale);cv.height=Math.round(img.height*scale);
+ cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+ return new Promise(res=>cv.toBlob(res,"image/jpeg",.82));
+}
+async function readCatalog(c){
+ const f=await ghGet(c,INDEX_PATH);
+ if(!f)throw new Error("index.html غير موجود في Repository.");
+ const text=decodeBase64(f.content);
+ const m=text.match(/const ASTRO_CARS_DATA\s*=\s*(\[[\s\S]*?\]);/);
+ if(!m)throw new Error("لم يتم العثور على ASTRO_CARS_DATA داخل index.html.");
+ let data=[];try{data=JSON.parse(m[1])}catch{throw new Error("بيانات السيارات داخل index.html غير صالحة.")}return {file:f,text,data};
+}
+function replaceCatalog(text,data){
+ const json=JSON.stringify(data,null,2);
+ return text.replace(/const ASTRO_CARS_DATA\s*=\s*(\[[\s\S]*?\]);/,"const ASTRO_CARS_DATA = "+json+";");
+}
+async function publish(){
+ const c=cfg();
+ if(!c.owner||!c.repo||!c.token)return setStatus("⚠️ خاصك تعمر إعدادات GitHub.","err");
+ const make=$("#make").value.trim(),model=$("#model").value.trim(),year=$("#year").value.trim(),km=$("#km").value.trim(),price=$("#price").value.trim();
+ if(!make||!model||!year||!km||!price||!selectedFiles.length)return setStatus("⚠️ عمر الماركة، الموديل، السنة، الكيلومتراج، الثمن واختار صورة.","err");
+ if(selectedFiles.length>8)return setStatus("⚠️ الحد الأقصى هو 8 صور.","err");
+ try{
+  $("#publish").disabled=true;setBar(3);setStatus("⏳ كنجيب البيانات الحالية من GitHub...");
+  const current=await readCatalog(c), carId=Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);
+  const car={id:carId,make,model,year:Number(year),km:Number(km),price:Number(price),fuel:$("#fuel").value,transmission:$("#transmission").value,desc:$("#desc").value.trim(),images:[],createdAt:Date.now(),wa:$("#wa").value.trim()||"212642410917"};
+  for(let i=0;i<selectedFiles.length;i++){
+   setStatus(`⏳ ضغط ورفع الصورة ${i+1} من ${selectedFiles.length}...`);setBar(10+(i/selectedFiles.length)*70);
+   const blob=await compress(selectedFiles[i]),b64=await blob64(blob),path=`cars/${carId}-${i+1}.jpg`;
+   await ghPut(c,path,b64,`Add ${make} ${model} image ${i+1}/${selectedFiles.length}`,null);
+   car.images.push("./"+path);
+  }
+  setBar(84);setStatus("⏳ كنحدّث index.html...");
+  current.data.unshift(car);
+  const updated=replaceCatalog(current.text,current.data);
+  await ghPut(c,INDEX_PATH,encodeBase64(updated),"Publish "+make+" "+model,current.file.sha);
+  catalog=current.data;renderCars();setBar(100);setStatus("✅ تم نشر السيارة بنجاح. GitHub Pages قد يحتاج بضع دقائق باش يحدّث الموقع.","ok");
+  ["make","model","year","km","price","desc"].forEach(id=>$("#"+id).value="");$("#photos").value="";selectedFiles=[];$("#previews").innerHTML="";
+ }catch(e){console.error(e);setBar(0);setStatus("❌ "+e.message,"err")}finally{$("#publish").disabled=false}
+}
+function renderCars(){
+ const q=(document.getElementById("carSearch")?.value||"").toLowerCase(); const sort=document.getElementById("carSort")?.value||"new";
+ let view=catalog.filter(c=>[c.make,c.model,c.year,c.price].join(" ").toLowerCase().includes(q));
+ view.sort((a,b)=>sort==="price"?Number(a.price)-Number(b.price):sort==="km"?Number(a.km)-Number(b.km):Number(b.createdAt||0)-Number(a.createdAt||0));
+ document.getElementById("statCars").textContent=catalog.length; document.getElementById("statImages").textContent=catalog.reduce((n,c)=>n+(c.images?.length||0),0); document.getElementById("statAvg").textContent=(catalog.length?Math.round(catalog.reduce((n,c)=>n+Number(c.price||0),0)/catalog.length):0).toLocaleString("fr-MA")+" DH";
+ if(!catalog.length){$("#cars").innerHTML='<div class="notice">ما كايناش سيارات منشورة بعد.</div>';return}
+ $("#cars").innerHTML=view.map(c=>`<div class="carRow"><img src="${esc(c.images?.[0]||"")}" alt="${esc(c.make+" "+c.model)}"><div style="flex:1"><h3>${esc(c.make)} ${esc(c.model)}</h3><p>${esc(c.year)} • ${new Intl.NumberFormat("fr-FR").format(c.km||0)} km • ${new Intl.NumberFormat("fr-MA").format(c.price||0)} DH</p><div class="rowBtns"><button class="danger" type="button" onclick="deleteCar('${esc(c.id)}')">🗑️ حذف هاد السيارة</button></div></div></div>`).join("");
+}
+async function reloadCars(){
+ const c=cfg();
+ if(!c.owner||!c.repo||!c.token)return setStatus("⚠️ دخل Token ثم ضغط حفظ الإعدادات باش نقدر نجيب السيارات.","err");
+ try{setStatus("⏳ كنجيب السيارات المنشورة...");const x=await readCatalog(c);catalog=x.data;renderCars();setStatus(`✅ تم تحديث اللائحة: ${catalog.length} سيارة.` ,"ok")}catch(e){setStatus("❌ "+e.message,"err")}
+}
+async function ghDelete(c,path,sha,message){
+ const r=await fetch(`${API}/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}`,{method:"DELETE",headers:{...headers(c.token),"Content-Type":"application/json"},body:JSON.stringify({message,sha,branch:c.branch})});
+ if(!r.ok)throw new Error("GitHub رفض حذف "+path+" ("+r.status+")");
+ return r.json();
+}
+async function deleteCar(id){
+ if(!confirm("واش متأكد بغيتي تحذف هاد السيارة والصور ديالها؟"))return;
+ const c=cfg();if(!c.token)return setStatus("⚠️ دخل Token ثم حفظ الإعدادات أولاً.","err");
+ try{
+  setStatus("⏳ كنحذف السيارة..." );
+  const current=await readCatalog(c),car=current.data.find(x=>x.id===id),newData=current.data.filter(x=>x.id!==id);
+  if(!car)return setStatus("السيارة غير موجودة.","err");
+  await ghPut(c,INDEX_PATH,encodeBase64(replaceCatalog(current.text,newData)),"Delete car "+id,current.file.sha);
+  for(const img of (car.images||[])){
+   const path=img.replace(/^\.\//,"");
+   try{const f=await ghGet(c,path);if(f)await ghDelete(c,path,f.sha,"Delete image for car "+id)}catch(err){console.warn("Image delete failed",path,err)}
+  }
+  catalog=newData;renderCars();setStatus("✅ تحيدات هاد السيارة بوحدها مع الصور ديالها.","ok");
+ }catch(e){setStatus("❌ "+e.message,"err")}
+}
+async function init(){
+ const saved=JSON.parse(localStorage.getItem("astroCarsGitHub")||"{}");
+ $("#owner").value=CONFIG.OWNER||saved.owner||"xnmap1234-lang"; $("#repo").value=CONFIG.REPO||saved.repo||"astro-cars"; $("#branch").value=CONFIG.BRANCH||saved.branch||"main";
+ const c=cfg();renderCars();if(!c.owner||!c.repo||!c.token)return;
+ try{const x=await readCatalog(c);catalog=x.data;renderCars()}catch(e){setStatus("ملاحظة: "+e.message,"err")}
+}
+$("#publish").onclick=publish;init();
+</script>
+</body></html>
