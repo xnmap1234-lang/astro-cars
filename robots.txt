@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://xnmap1234-lang.github.io/astro-cars/sitemap.xml
