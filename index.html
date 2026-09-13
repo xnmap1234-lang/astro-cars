@@ -523,21 +523,56 @@ async function readBidsFromSupabase(){
 }
 
 async function submitBid(e){
- e.preventDefault();const err=document.getElementById("bidError"),ok=document.getElementById("bidSuccess");err.style.display="none";ok.style.display="none";
- const a=activeBidAuction,phone=document.getElementById("bidPhone").value.trim(),amount=Number(document.getElementById("bidAmount").value);if(!a)return;
+ e.preventDefault();
+ const err=document.getElementById("bidError"),ok=document.getElementById("bidSuccess");
+ err.style.display="none";ok.style.display="none";
+ const a=activeBidAuction,phone=document.getElementById("bidPhone").value.trim(),amount=Number(document.getElementById("bidAmount").value);
+ if(!a)return;
  if(!/^[+]?[0-9 ()-]{8,20}$/.test(phone)){err.textContent="دخل رقم هاتف صحيح.";err.style.display="block";return}
- const min=Math.max(Number(a.startPrice)||0,auctionCurrent(a)+1);if(!Number.isFinite(amount)||amount<min){err.textContent="المبلغ خاصو يكون على الأقل "+auctionMoney(min)+".";err.style.display="block";return}
- const bid={auction_id:String(a.id),phone,amount,image:(auctionImages(a)[0]||""),status:"pending"};
-  try{
-   const {error}=await sb.from("auction_bids").insert(bid);
-   if(error)throw error;
-   const saved={...bid,id:"local-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),created_at:new Date().toISOString()};
-   auctionBids.unshift({id:saved.id,auctionId:saved.auction_id,car:((a.make||"")+" "+(a.model||"")).trim(),phone:saved.phone,amount:Number(saved.amount),image:saved.image||"",createdAt:saved.created_at,status:"pending"});
-  ok.textContent="تم تسجيل المزايدة بنجاح. العرض ديالك غادي يبقى في انتظار المراجعة.";ok.style.display="block";
-  document.getElementById("bidForm").reset();renderAuctions();setTimeout(closeBid,1800);
- }catch(e){console.error(e);err.textContent="وقع مشكل أثناء حفظ المزايدة: "+(e?.message||"Supabase error");err.style.display="block"}
-}
+ const min=Math.max(Number(a.startPrice)||0,auctionCurrent(a)+1);
+ if(!Number.isFinite(amount)||amount<min){err.textContent="المبلغ خاصو يكون على الأقل "+auctionMoney(min)+".";err.style.display="block";return}
 
+ // بعض نسخ جدول auction_bids عندك ما فيهاش phone/status/id/car/image.
+ // نبدأ بأقل payload ممكن، ثم نزيد الحقول فقط إذا كان schema يسمح بها.
+ const base={auction_id:String(a.id),amount};
+ const attempts=[
+   base,
+   {...base,phone},
+   {...base,phone,status:"pending"},
+   {...base,phone,id:crypto.randomUUID(),status:"pending"},
+   {...base,phone,id:crypto.randomUUID(),status:"pending",car:((a.make||"")+" "+(a.model||"")).trim(),image:auctionImages(a)[0]||""}
+ ];
+ let lastError=null;
+ try{
+   let saved=null;
+   for(const payload of attempts){
+     const r=await sb.from("auction_bids").insert(payload);
+     if(!r.error){saved=payload;break}
+     lastError=r.error;
+     const msg=String(r.error.message||"").toLowerCase();
+     // نجرب الشكل التالي فقط إذا كان الخطأ متعلقاً بعمود اختياري/ID.
+     if(!/(column|schema cache|not-null|null value|status|id)/.test(msg))break;
+   }
+   if(!saved)throw lastError||new Error("تعذر حفظ المزايدة");
+
+   const local={
+     id:saved.id||"local-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),
+     auctionId:String(a.id),
+     car:((a.make||"")+" "+(a.model||"")).trim()||"سيارة المزاد",
+     phone,amount,image:auctionImages(a)[0]||"",createdAt:new Date().toISOString(),status:saved.status||"pending"
+   };
+   auctionBids.unshift(local);
+   ok.textContent="تم تسجيل المزايدة بنجاح. العرض ديالك غادي يبقى في انتظار المراجعة.";
+   ok.style.display="block";
+   document.getElementById("bidForm").reset();
+   renderAuctions();
+   setTimeout(closeBid,1800);
+ }catch(e){
+   console.error("Supabase bid error:",e);
+   err.textContent="وقع مشكل أثناء حفظ المزايدة: "+(e?.message||"Supabase error");
+   err.style.display="block";
+ }
+}
 function startAuctionAutoSlides(){
  const run=()=>{auctionList().filter(auctionActive).forEach(a=>{if(auctionImages(a).length>1)auctionImg(String(a.id),1);});};
  setInterval(run,5000);
