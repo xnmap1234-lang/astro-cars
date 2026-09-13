@@ -508,12 +508,8 @@ async function readCatalogFromSupabase(){
   if(ar.error)throw ar.error;
   const remoteCars=(cr.data||[]).map(c=>({id:c.id,make:c.make,model:c.model,year:c.year,km:c.km,price:Number(c.price)||0,fuel:c.fuel||"",transmission:c.transmission||"",desc:c.description||"",images:Array.isArray(c.images)?c.images:[],createdAt:new Date(c.created_at).getTime(),wa:c.wa||WA}));
   const remoteAuctions=(ar.data||[]).map(a=>({id:a.id,make:a.make,model:a.model,year:a.year,km:a.km,startPrice:Number(a.start_price)||0,minIncrement:Number(a.min_increment)||1000,endsAt:a.ends_at,active:a.active!==false,desc:a.description||"",images:Array.isArray(a.images)?a.images:[],createdAt:new Date(a.created_at).getTime(),wa:a.wa||WA}));
-  const baseCars=Array.isArray(ASTRO_CARS_DATA)?ASTRO_CARS_DATA:[];
-  const remoteCarIds=new Set(remoteCars.map(c=>String(c.id)));
-  cars=[...remoteCars,...baseCars.filter(c=>!remoteCarIds.has(String(c.id)))];
-  const baseAuctions=Array.isArray(ASTRO_AUCTIONS_DATA)?ASTRO_AUCTIONS_DATA:[];
-  const remoteAuctionIds=new Set(remoteAuctions.map(a=>String(a.id)));
-  astroAuctions=[...remoteAuctions,...baseAuctions.filter(a=>!remoteAuctionIds.has(String(a.id)))];
+  if(remoteCars.length) cars=remoteCars;
+  if(remoteAuctions.length) astroAuctions=remoteAuctions;
   return true;
  }catch(e){console.warn("Supabase catalog fallback:",e);return false}
 }
@@ -531,17 +527,22 @@ async function submitBid(e){
  const a=activeBidAuction,phone=document.getElementById("bidPhone").value.trim(),amount=Number(document.getElementById("bidAmount").value);if(!a)return;
  if(!/^[+]?[0-9 ()-]{8,20}$/.test(phone)){err.textContent="دخل رقم هاتف صحيح.";err.style.display="block";return}
  const min=Math.max(Number(a.startPrice)||0,auctionCurrent(a)+1);if(!Number.isFinite(amount)||amount<min){err.textContent="المبلغ خاصو يكون على الأقل "+auctionMoney(min)+".";err.style.display="block";return}
- const bid={id:"bid-"+Date.now()+"-"+Math.random().toString(36).slice(2,8),auction_id:String(a.id),car:(a.make||"")+" "+(a.model||""),phone,amount,image:(auctionImages(a)[0]||""),created_at:new Date().toISOString(),status:"pending"};
- try{
-  const {error}=await sb.from("auction_bids").insert(bid);
-  if(error)throw error;
-  auctionBids.unshift({id:bid.id,auctionId:bid.auction_id,car:bid.car,phone:bid.phone,amount:bid.amount,image:bid.image,createdAt:bid.created_at,status:bid.status});
+ const bid={auction_id:String(a.id),car:((a.make||"")+" "+(a.model||"")).trim(),phone,amount,image:(auctionImages(a)[0]||"")};
+  try{
+   const {data,error}=await sb.from("auction_bids").insert(bid).select("*").single();
+   if(error)throw error;
+   const saved=data||{...bid,id:"bid-"+Date.now(),created_at:new Date().toISOString(),status:"pending"};
+   auctionBids.unshift({id:saved.id,auctionId:saved.auction_id,car:saved.car,phone:saved.phone,amount:Number(saved.amount),image:saved.image||"",createdAt:saved.created_at,status:saved.status||"pending"});
   ok.textContent="تم تسجيل المزايدة بنجاح. العرض ديالك غادي يبقى في انتظار المراجعة.";ok.style.display="block";
   document.getElementById("bidForm").reset();renderAuctions();setTimeout(closeBid,1800);
- }catch(e){console.error(e);err.textContent="وقع مشكل أثناء حفظ المزايدة. تأكد من إعداد Supabase ثم عاود المحاولة.";err.style.display="block"}
+ }catch(e){console.error(e);err.textContent="وقع مشكل أثناء حفظ المزايدة: "+(e?.message||"Supabase error");err.style.display="block"}
 }
 
-(async function(){await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions();setInterval(async()=>{await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions()},30000)})();
+function startAuctionAutoSlides(){
+ const run=()=>{auctionList().filter(auctionActive).forEach(a=>{if(auctionImages(a).length>1)auctionImg(String(a.id),1);});};
+ setInterval(run,5000);
+}
+(async function(){await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions();startAuctionAutoSlides();setInterval(async()=>{await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions()},30000)})();
 </script>
 
 
@@ -555,4 +556,4 @@ async function submitBid(e){
 </script>
 
 </body>
-  </html>
+      </html>
