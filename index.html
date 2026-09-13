@@ -508,8 +508,12 @@ async function readCatalogFromSupabase(){
   if(ar.error)throw ar.error;
   const remoteCars=(cr.data||[]).map(c=>({id:c.id,make:c.make,model:c.model,year:c.year,km:c.km,price:Number(c.price)||0,fuel:c.fuel||"",transmission:c.transmission||"",desc:c.description||"",images:Array.isArray(c.images)?c.images:[],createdAt:new Date(c.created_at).getTime(),wa:c.wa||WA}));
   const remoteAuctions=(ar.data||[]).map(a=>({id:a.id,make:a.make,model:a.model,year:a.year,km:a.km,startPrice:Number(a.start_price)||0,minIncrement:Number(a.min_increment)||1000,endsAt:a.ends_at,active:a.active!==false,desc:a.description||"",images:Array.isArray(a.images)?a.images:[],createdAt:new Date(a.created_at).getTime(),wa:a.wa||WA}));
-  if(remoteCars.length) cars=remoteCars;
-  if(remoteAuctions.length) astroAuctions=remoteAuctions;
+  const baseCars=Array.isArray(ASTRO_CARS_DATA)?ASTRO_CARS_DATA:[];
+  const remoteCarIds=new Set(remoteCars.map(c=>String(c.id)));
+  cars=[...remoteCars,...baseCars.filter(c=>!remoteCarIds.has(String(c.id)))];
+  const baseAuctions=Array.isArray(ASTRO_AUCTIONS_DATA)?ASTRO_AUCTIONS_DATA:[];
+  const remoteAuctionIds=new Set(remoteAuctions.map(a=>String(a.id)));
+  astroAuctions=[...remoteAuctions,...baseAuctions.filter(a=>!remoteAuctionIds.has(String(a.id)))];
   return true;
  }catch(e){console.warn("Supabase catalog fallback:",e);return false}
 }
@@ -551,4 +555,4 @@ async function submitBid(e){
 </script>
 
 </body>
-</html>
+  </html>
