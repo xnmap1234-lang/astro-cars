@@ -70,6 +70,29 @@
 .bidError,.bidSuccess{display:none;border-radius:10px;padding:9px;font-size:12px}.bidError{color:#b42318;background:#fff0ed;border:1px solid #ffd0ca}.bidSuccess{color:#087d45;background:#f2fbf6;border:1px solid #cdebdc}
 @media(max-width:700px){.auctionGrid{grid-template-columns:1fr}.auctionHead{display:block}}
 
+
+/* ===== CUSTOMER ACCOUNT / LISTINGS ===== */
+.accountBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.accountBtn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 13px;font-weight:800;cursor:pointer}
+.accountBtn.gold{background:#f4c928;border-color:#e7b800}
+.customerSection{padding:34px 0 55px;background:#fafaf8;border-top:1px solid var(--line)}
+.customerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.customerCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px}
+.customerCard h3{margin:0 0 6px}.customerCard p{margin:4px 0;color:var(--muted);font-size:13px}
+.customerCars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
+.customerListing{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:#fff}
+.customerListing img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.customerListing .body{padding:13px}.customerListing h3{margin:0 0 5px}.customerListing .body p{margin:3px 0;color:var(--muted);font-size:12px}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.formGrid .full{grid-column:1/-1}
+.formLabel{font-size:12px;font-weight:800;display:block;margin-bottom:6px}.formInput,.formArea{width:100%;padding:12px;border:1px solid #dddfe2;border-radius:11px;background:#fff;outline:0}.formArea{min-height:90px;resize:vertical}
+.accountHint{padding:11px 13px;border-radius:11px;background:#f7f7f5;color:#59616b;font-size:12px}
+.customerStatus{padding:10px;border-radius:10px;font-size:12px;display:none}.customerStatus.err{display:block;background:#fff0ed;color:#b42318}.customerStatus.ok{display:block;background:#f2fbf6;color:#087d45}
+.uploadMini{border:1px dashed #cfd3d8;border-radius:13px;padding:15px;text-align:center;background:#fafbfc;cursor:pointer}
+.bidStepBox{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.bidAmountInput{width:100%;padding:13px;border:1px solid #dddfe2;border-radius:12px;font-weight:900;font-size:19px;text-align:center;background:#fafafa}
+.bidSteps{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:8px}.bidStep{padding:10px;border:1px solid #e7d68e;background:#fff8df;color:#7b5b00;border-radius:10px;font-weight:900}
+@media(max-width:900px){.customerGrid,.customerCars{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.customerGrid,.customerCars,.formGrid{grid-template-columns:1fr}.formGrid .full{grid-column:auto}}
+
 </style>
 
 <!-- Keep this exact variable name: the existing Astro Cars Admin updates it through GitHub. -->
@@ -284,8 +307,12 @@ const ASTRO_AUCTIONS_DATA = [
       <div><b>ASTRO <span style="color:#d9a400;display:inline">CARS</span></b><span>سيارات مختارة بعناية</span></div>
     </a>
     <nav class="navlinks" aria-label="القائمة الرئيسية">
-      <a href="#cars">السيارات</a><a href="#about">لماذا نحن</a><a href="#contact">اتصل بنا</a>
+      <a href="#cars">السيارات</a><a href="#auctions">المزاد</a><a href="#about">لماذا نحن</a><a href="#contact">اتصل بنا</a>
     </nav>
+    <div class="accountBar">
+      <button class="accountBtn" id="accountBtn" type="button">👤 حسابي</button>
+      <button class="accountBtn gold" id="postAdBtn" type="button">📢 رفع إعلان</button>
+    </div>
   </div>
 </header>
 
@@ -335,6 +362,16 @@ const ASTRO_AUCTIONS_DATA = [
   </div>
 </section>
 
+
+<section class="customerSection" id="customerArea">
+  <div class="wrap">
+    <div class="sectionHead">
+      <div><h2>🚘 إعلانات الزبناء</h2><p>الإعلانات التي يرفعها الزبناء تظهر هنا مباشرة.</p></div>
+    </div>
+    <div id="customerCarsGrid" class="customerCars"></div>
+  </div>
+</section>
+
 <section class="section about" id="about">
   <div class="wrap">
     <div class="sectionHead"><div><h2>لماذا Astro Cars؟</h2><p>تجربة بسيطة وواضحة للبحث عن سيارتك.</p></div></div>
@@ -354,6 +391,58 @@ const ASTRO_AUCTIONS_DATA = [
 <footer class="footer"><div class="wrap footerInner"><div><strong>ASTRO CARS</strong> — سيارات مستعملة للبيع</div><div>Casablanca, Morocco • WhatsApp: +212 642 410 917</div><div>© <span id="yearNow"></span> Astro Cars</div></div></footer>
 
 
+
+<div class="modal" id="accountModal" role="dialog" aria-modal="true">
+ <div class="modalBox">
+  <div class="modalHead"><h2 id="accountTitle">حساب Astro Cars</h2><button class="close" onclick="closeAccount()">×</button></div>
+  <div id="accountGuest">
+   <div class="accountHint" style="margin:12px 0">أنشئ حساباً مجاناً باش تحتافظ بإعلاناتك وتقدر تديرها من حسابك.</div>
+   <div class="formGrid">
+    <div><label class="formLabel">الاسم</label><input id="signupName" class="formInput" placeholder="الاسم الكامل"></div>
+    <div><label class="formLabel">رقم الهاتف</label><input id="signupPhone" class="formInput" type="tel" placeholder="06XXXXXXXX"></div>
+    <div><label class="formLabel">البريد الإلكتروني</label><input id="signupEmail" class="formInput" type="email" placeholder="email@example.com"></div>
+    <div><label class="formLabel">كلمة المرور</label><input id="signupPassword" class="formInput" type="password" minlength="6" placeholder="6 أحرف أو أكثر"></div>
+    <div class="full"><button class="btn btnGold" style="width:100%" id="signupBtn" type="button">إنشاء الحساب</button></div>
+    <div class="full" style="text-align:center;color:#777">عندي حساب من قبل؟</div>
+    <div><input id="loginEmail" class="formInput" type="email" placeholder="البريد الإلكتروني"></div>
+    <div><input id="loginPassword" class="formInput" type="password" placeholder="كلمة المرور"></div>
+    <div class="full"><button class="btn btnPrimary" style="width:100%" id="loginBtnCustomer" type="button">دخول</button></div>
+   </div>
+  </div>
+  <div id="accountUser" style="display:none">
+   <div id="accountInfo" class="accountHint" style="margin:12px 0"></div>
+   <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btnGold" type="button" onclick="openPostAd()">📢 رفع إعلان</button>
+    <button class="btn" type="button" onclick="logoutCustomer()">خروج</button>
+   </div>
+   <h3 style="margin:20px 0 10px">إعلاناتي</h3>
+   <div id="myListings"></div>
+  </div>
+  <div id="accountStatus" class="customerStatus" style="margin-top:12px"></div>
+ </div>
+</div>
+
+<div class="modal" id="postAdModal" role="dialog" aria-modal="true">
+ <div class="modalBox">
+  <div class="modalHead"><h2>📢 رفع إعلان سيارة</h2><button class="close" onclick="closePostAd()">×</button></div>
+  <div class="accountHint" style="margin:12px 0">عمر معلومات السيارة، اختار حتى 8 صور، ومن بعد الإعلان ديالك غادي يبان في الموقع وحسابك.</div>
+  <div class="formGrid">
+   <div><label class="formLabel">الماركة *</label><input id="caMake" class="formInput" placeholder="Dacia"></div>
+   <div><label class="formLabel">الموديل *</label><input id="caModel" class="formInput" placeholder="Sandero"></div>
+   <div><label class="formLabel">السنة *</label><input id="caYear" class="formInput" type="number"></div>
+   <div><label class="formLabel">الكيلومتراج *</label><input id="caKm" class="formInput" type="number"></div>
+   <div><label class="formLabel">الثمن DH *</label><input id="caPrice" class="formInput" type="number"></div>
+   <div><label class="formLabel">الوقود</label><select id="caFuel" class="formInput"><option>Diesel</option><option>Essence</option><option>Hybrid</option><option>Electric</option></select></div>
+   <div><label class="formLabel">ناقل الحركة</label><select id="caTransmission" class="formInput"><option>Manual</option><option>Automatic</option></select></div>
+   <div><label class="formLabel">رقم الهاتف</label><input id="caPhone" class="formInput" type="tel"></div>
+   <div class="full"><label class="formLabel">الوصف</label><textarea id="caDesc" class="formArea" placeholder="حالة السيارة والتجهيزات..."></textarea></div>
+   <div class="full"><label class="formLabel">الصور *</label><label class="uploadMini">📷 اختيار الصور <input id="caPhotos" type="file" accept="image/*" multiple hidden></label><div id="caPreview" class="previews" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px"></div></div>
+   <div class="full"><button class="btn btnGold" style="width:100%" id="publishCustomerAd" type="button">🚀 نشر الإعلان</button></div>
+  </div>
+  <div id="postAdStatus" class="customerStatus" style="margin-top:12px"></div>
+ </div>
+</div>
+
 <div class="modal" id="bidModal" role="dialog" aria-modal="true" aria-labelledby="bidTitle">
   <div class="modalBox bidModalBox">
     <div class="modalHead"><h2 id="bidTitle">المزايدة</h2><button class="close" onclick="closeBid()" aria-label="إغلاق">×</button></div>
@@ -363,7 +452,13 @@ const ASTRO_AUCTIONS_DATA = [
       <label for="bidPhone">رقم الهاتف</label>
       <input id="bidPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="مثال: 06XXXXXXXX" required>
       <label for="bidAmount">مبلغ المزايدة (DH)</label>
-      <input id="bidAmount" type="number" inputmode="decimal" min="1" step="100" required>
+      <div class="bidStepBox"><input id="bidAmount" class="bidAmountInput" type="number" inputmode="numeric" min="1" step="1000" required readonly><span style="font-weight:900">DH</span></div>
+      <div class="bidSteps">
+        <button class="bidStep" type="button" onclick="changeBid(1000)">＋ 1.000 DH</button>
+        <button class="bidStep" type="button" onclick="changeBid(10000)">＋ 10.000 DH</button>
+        <button class="bidStep" type="button" onclick="changeBid(-1000)">− 1.000 DH</button>
+        <button class="bidStep" type="button" onclick="changeBid(-10000)">− 10.000 DH</button>
+      </div>
       <div id="bidError" class="bidError"></div>
       <div id="bidSuccess" class="bidSuccess"></div>
       <button class="btn btnGold" type="submit">إرسال المزايدة</button>
@@ -442,6 +537,125 @@ renderCars();
 </script>
 
 <script>
+
+/* ===== CUSTOMER ACCOUNTS / CUSTOMER LISTINGS ===== */
+let customerSession=null, customerProfile=null, customerFiles=[];
+async function refreshCustomerSession(){
+ const {data}=await sb.auth.getSession();
+ customerSession=data?.session||null;
+ if(customerSession) await loadCustomerProfile();
+ renderAccountButton();
+}
+async function loadCustomerProfile(){
+ if(!customerSession){customerProfile=null;return}
+ const {data,error}=await sb.from("profiles").select("*").eq("id",customerSession.user.id).maybeSingle();
+ if(error) console.warn("profile:",error);
+ customerProfile=data||{id:customerSession.user.id,email:customerSession.user.email||"",name:"",phone:""};
+}
+function renderAccountButton(){
+ const b=$("accountBtn"); if(!b)return;
+ b.textContent=customerSession?"👤 حسابي":"👤 إنشاء حساب / دخول";
+}
+function accountStatus(t,type=""){const x=$("accountStatus");x.textContent=t;x.className="customerStatus "+type}
+function postStatus(t,type=""){const x=$("postAdStatus");x.textContent=t;x.className="customerStatus "+type}
+function openAccount(){
+ $("accountModal").classList.add("show");
+ $("accountGuest").style.display=customerSession?"none":"block";
+ $("accountUser").style.display=customerSession?"block":"none";
+ if(customerSession){
+  $("accountInfo").innerHTML=`<b>${esc(customerProfile?.name||"حساب الزبون")}</b><br>📱 ${esc(customerProfile?.phone||"—")}<br>✉️ ${esc(customerProfile?.email||customerSession.user.email||"")}`;
+  loadMyListings();
+ }
+}
+function closeAccount(){$("accountModal").classList.remove("show")}
+async function signupCustomer(){
+ const name=$("signupName").value.trim(),phone=$("signupPhone").value.trim(),email=$("signupEmail").value.trim(),password=$("signupPassword").value;
+ if(!name||!phone||!email||password.length<6)return accountStatus("عمر الاسم، الهاتف، البريد وكلمة مرور من 6 أحرف على الأقل.","err");
+ try{
+  $("signupBtn").disabled=true;
+  const r=await sb.auth.signUp({email,password,options:{data:{name,phone}}});
+  if(r.error)throw r.error;
+  if(r.data?.user){
+   const ins=await sb.from("profiles").upsert({id:r.data.user.id,name,phone,email,role:"customer"},{onConflict:"id"});
+   if(ins.error)console.warn("profile insert:",ins.error);
+  }
+  if(r.data?.session){customerSession=r.data.session;await loadCustomerProfile();renderAccountButton();openAccount();accountStatus("✅ تم إنشاء الحساب بنجاح.","ok")}
+  else accountStatus("✅ تم إنشاء الحساب. إذا طلب منك Supabase تأكيد البريد، أكد البريد ثم سجل الدخول.","ok");
+ }catch(e){accountStatus("❌ "+(e.message||e),"err")}finally{$("signupBtn").disabled=false}
+}
+async function loginCustomer(){
+ const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+ if(!email||!password)return accountStatus("دخل البريد الإلكتروني وكلمة المرور.","err");
+ try{
+  $("loginBtnCustomer").disabled=true;const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;
+  customerSession=r.data.session;await loadCustomerProfile();renderAccountButton();openAccount();accountStatus("✅ مرحبا بك.","ok");
+ }catch(e){accountStatus("❌ "+(e.message||e),"err")}finally{$("loginBtnCustomer").disabled=false}
+}
+async function logoutCustomer(){await sb.auth.signOut();customerSession=null;customerProfile=null;customerFiles=[];renderAccountButton();closeAccount();renderCustomerListings()}
+function openPostAd(){
+ if(!customerSession){closeAccount();openAccount();accountStatus("خاصك تدخل أو تنشئ حساب قبل رفع الإعلان.","err");return}
+ closeAccount();$("postAdModal").classList.add("show");$("caPhone").value=customerProfile?.phone||"";postStatus("",""); 
+}
+function closePostAd(){$("postAdModal").classList.remove("show")}
+$("caPhotos")?.addEventListener("change",e=>{customerFiles=[...e.target.files].filter(f=>f.type.startsWith("image/")).slice(0,8);$("caPreview").innerHTML=customerFiles.map((f,i)=>`<div class="prev"><img src="${URL.createObjectURL(f)}"><span class="num">${i+1}</span></div>`).join("")});
+async function customerCompress(file){
+ const img=await new Promise((res,rej)=>{const i=new Image;i.onload=()=>{URL.revokeObjectURL(i.src);res(i)};i.onerror=rej;i.src=URL.createObjectURL(file)});
+ const max=1800,scale=Math.min(1,max/Math.max(img.width,img.height)),cv=document.createElement("canvas");cv.width=Math.max(1,Math.round(img.width*scale));cv.height=Math.max(1,Math.round(img.height*scale));cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+ return new Promise(res=>cv.toBlob(res,"image/jpeg",.82))
+}
+async function uploadCustomerImages(files,id){
+ const urls=[];
+ for(let i=0;i<files.length;i++){
+  const blob=await customerCompress(files[i]),path=`customer-cars/${customerSession.user.id}/${id}/${i+1}.jpg`;
+  const r=await sb.storage.from("astro-cars").upload(path,blob,{contentType:"image/jpeg",upsert:true});
+  if(r.error)throw r.error;urls.push(sb.storage.from("astro-cars").getPublicUrl(path).data.publicUrl);
+ }
+ return urls;
+}
+async function publishCustomerAd(){
+ if(!customerSession)return openPostAd();
+ const make=$("caMake").value.trim(),model=$("caModel").value.trim(),year=Number($("caYear").value),km=Number($("caKm").value),price=Number($("caPrice").value),phone=$("caPhone").value.trim();
+ if(!make||!model||!year||!km||!price||!customerFiles.length)return postStatus("⚠️ عمر معلومات السيارة واختار صورة على الأقل.","err");
+ try{
+  $("publishCustomerAd").disabled=true;postStatus("⏳ جاري ضغط ورفع الصور...","");
+  const id=crypto.randomUUID(),images=await uploadCustomerImages(customerFiles,id);
+  const row={id,user_id:customerSession.user.id,make,model,year,km,price,fuel:$("caFuel").value,transmission:$("caTransmission").value,phone,description:$("caDesc").value.trim(),images,active:true,created_at:new Date().toISOString()};
+  const r=await sb.from("customer_listings").insert(row);if(r.error)throw r.error;
+  postStatus("✅ تنشر الإعلان بنجاح.","ok");await loadCustomerListings();renderCustomerListings();setTimeout(closePostAd,1200);
+ }catch(e){postStatus("❌ "+(e.message||e),"err")}finally{$("publishCustomerAd").disabled=false}
+}
+let customerListings=[];
+async function loadCustomerListings(){
+ try{const r=await sb.from("customer_listings").select("*").eq("active",true).order("created_at",{ascending:false});if(r.error)throw r.error;customerListings=r.data||[];return customerListings}catch(e){console.warn("customer listings:",e);customerListings=[];return []}
+}
+function renderCustomerListings(){
+ const root=$("customerCarsGrid");if(!root)return;
+ const list=customerListings.filter(x=>x.active!==false);
+ root.innerHTML=list.length?list.map(c=>`<article class="customerListing"><img src="${esc(c.images?.[0]||"")}" alt="${esc((c.make||"")+" "+(c.model||""))}"><div class="body"><h3>${esc(c.make||"")} ${esc(c.model||"")}</h3><p>${esc(c.year||"—")} • ${num(c.km||0)} km</p><p>${money(c.price||0)} • 📱 ${esc(c.phone||"")}</p><p>${esc(c.description||"")}</p></div></article>`).join(""):'<div class="empty" style="grid-column:1/-1">ما كايناش إعلانات زبناء حاليا.</div>';
+}
+async function loadMyListings(){
+ if(!customerSession)return;
+ const r=await sb.from("customer_listings").select("*").eq("user_id",customerSession.user.id).order("created_at",{ascending:false});
+ const list=r.data||[],root=$("myListings");
+ if(r.error){root.innerHTML=`<div class="customerStatus err" style="display:block">${esc(r.error.message)}</div>`;return}
+ root.innerHTML=list.length?list.map(c=>`<div class="customerCard" style="margin-bottom:8px"><h3>${esc(c.make||"")} ${esc(c.model||"")}</h3><p>${esc(c.year||"—")} • ${num(c.km||0)} km • ${money(c.price||0)}</p><button class="btn" type="button" onclick="deleteMyListing('${esc(c.id)}')">🗑️ مسح الإعلان</button></div>`).join(""):'<div class="accountHint">ما عندك حتى إعلان حاليا.</div>';
+}
+async function deleteMyListing(id){
+ if(!customerSession||!confirm("واش متأكد بغيتي تمسح الإعلان؟"))return;
+ const r=await sb.from("customer_listings").delete().eq("id",id).eq("user_id",customerSession.user.id);
+ if(r.error)return accountStatus("❌ "+r.error.message,"err");
+ try{const files=await sb.storage.from("astro-cars").list(`customer-cars/${customerSession.user.id}/${id}`);if(files.data?.length)await sb.storage.from("astro-cars").remove(files.data.map(x=>`customer-cars/${customerSession.user.id}/${id}/${x.name}`))}catch{}
+ await loadMyListings();await loadCustomerListings();renderCustomerListings();accountStatus("✅ تم مسح الإعلان.","ok");
+}
+$("accountBtn")?.addEventListener("click",openAccount);
+$("postAdBtn")?.addEventListener("click",openPostAd);
+$("signupBtn")?.addEventListener("click",signupCustomer);
+$("loginBtnCustomer")?.addEventListener("click",loginCustomer);
+$("publishCustomerAd")?.addEventListener("click",publishCustomerAd);
+$("accountModal")?.addEventListener("click",e=>{if(e.target.id==="accountModal")closeAccount()});
+$("postAdModal")?.addEventListener("click",e=>{if(e.target.id==="postAdModal")closePostAd()});
+async function initCustomers(){await refreshCustomerSession();await loadCustomerListings();renderCustomerListings()}
+
 /* ===== ASTRO CARS AUCTION ENGINE — SUPABASE ===== */
 let auctionBids=[],activeBidAuction=null,auctionTimers=new Map();
 
@@ -488,13 +702,21 @@ function startAuctionTimer(a){
 }
 function openBid(id){
  const a=auctionList().find(x=>String(x.id)===String(id));if(!a||!auctionActive(a))return alert("هذا المزاد انتهى.");
- activeBidAuction=a;document.getElementById("bidAuctionId").value=id;document.getElementById("bidPhone").value="";document.getElementById("bidAmount").value="";
+ activeBidAuction=a;document.getElementById("bidAuctionId").value=id;document.getElementById("bidPhone").value=customerProfile?.phone||"";document.getElementById("bidAmount").value="";
  document.getElementById("bidError").style.display="none";document.getElementById("bidSuccess").style.display="none";
  const min=Math.max(Number(a.startPrice)||0,auctionCurrent(a)+1);document.getElementById("bidAmount").min=min;
  document.getElementById("bidAmount").placeholder="أقل مبلغ: "+auctionMoney(min);
  document.getElementById("bidCarInfo").innerHTML=`<b>${auctionEsc((a.make||"")+" "+(a.model||""))}</b><br>أعلى عرض حالياً: <strong>${auctionMoney(auctionCurrent(a))}</strong>`;
  document.getElementById("bidModal").classList.add("show")
 }
+function changeBid(delta){
+ const a=activeBidAuction;if(!a)return;
+ const min=Math.max(Number(a.startPrice)||0,auctionCurrent(a)+1);
+ let cur=Number(document.getElementById("bidAmount").value)||min;
+ if(cur<min)cur=min;
+ cur+=delta;if(cur<min)cur=min;
+ document.getElementById("bidAmount").value=cur;
+} 
 function closeBid(){document.getElementById("bidModal").classList.remove("show")}
 document.getElementById("bidModal")?.addEventListener("click",e=>{if(e.target.id==="bidModal")closeBid()});
 
@@ -577,7 +799,7 @@ function startAuctionAutoSlides(){
  const run=()=>{auctionList().filter(auctionActive).forEach(a=>{if(auctionImages(a).length>1)auctionImg(String(a.id),1);});};
  setInterval(run,5000);
 }
-(async function(){await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions();startAuctionAutoSlides();setInterval(async()=>{await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions()},30000)})();
+(async function(){await readCatalogFromSupabase();renderCars();await initCustomers();await readBidsFromSupabase();renderAuctions();startAuctionAutoSlides();setInterval(async()=>{await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions()},30000)})();
 </script>
 
 
@@ -591,4 +813,4 @@ function startAuctionAutoSlides(){
 </script>
 
 </body>
-</html>
+  </html>
