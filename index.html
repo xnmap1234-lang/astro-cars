@@ -83,6 +83,7 @@
 .customerListing{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:#fff}
 .customerListing img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
 .customerListing .body{padding:13px}.customerListing h3{margin:0 0 5px}.customerListing .body p{margin:3px 0;color:var(--muted);font-size:12px}
+.customerPhotoPreview{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.customerPhotoPreview .prev{aspect-ratio:4/3;min-height:150px;border-radius:12px}.customerPhotoPreview .prev img{width:100%;height:100%;object-fit:cover;display:block}@media(max-width:620px){.customerPhotoPreview{grid-template-columns:1fr 1fr!important}.customerPhotoPreview .prev{min-height:135px}}
 .formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.formGrid .full{grid-column:1/-1}
 .formLabel{font-size:12px;font-weight:800;display:block;margin-bottom:6px}.formInput,.formArea{width:100%;padding:12px;border:1px solid #dddfe2;border-radius:11px;background:#fff;outline:0}.formArea{min-height:90px;resize:vertical}
 .accountHint{padding:11px 13px;border-radius:11px;background:#f7f7f5;color:#59616b;font-size:12px}
@@ -435,7 +436,7 @@ const ASTRO_AUCTIONS_DATA = [
    <div><label class="formLabel">ناقل الحركة</label><select id="caTransmission" class="formInput"><option>Manual</option><option>Automatic</option></select></div>
    <div><label class="formLabel">رقم الهاتف</label><input id="caPhone" class="formInput" type="tel"></div>
    <div class="full"><label class="formLabel">الوصف</label><textarea id="caDesc" class="formArea" placeholder="حالة السيارة والتجهيزات..."></textarea></div>
-   <div class="full"><label class="formLabel">الصور *</label><label class="uploadMini">📷 اختيار الصور <input id="caPhotos" type="file" accept="image/*" multiple hidden></label><div id="caPreview" class="previews" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px"></div></div>
+   <div class="full"><label class="formLabel">الصور *</label><label class="uploadMini">📷 اختيار الصور <input id="caPhotos" type="file" accept="image/*" multiple hidden></label><div id="caPreview" class="previews customerPhotoPreview" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px"></div></div>
    <div class="full"><button class="btn btnGold" style="width:100%" id="publishCustomerAd" type="button">🚀 نشر الإعلان</button></div>
   </div>
   <div id="postAdStatus" class="customerStatus" style="margin-top:12px"></div>
@@ -596,7 +597,7 @@ function openPostAd(){
  closeAccount();$("postAdModal").classList.add("show");$("caPhone").value=customerProfile?.phone||"";postStatus("",""); 
 }
 function closePostAd(){$("postAdModal").classList.remove("show")}
-$("caPhotos")?.addEventListener("change",e=>{customerFiles=[...e.target.files].filter(f=>f.type.startsWith("image/")).slice(0,8);$("caPreview").innerHTML=customerFiles.map((f,i)=>`<div class="prev"><img src="${URL.createObjectURL(f)}"><span class="num">${i+1}</span></div>`).join("")});
+$("caPhotos")?.addEventListener("change",e=>{customerFiles=[...e.target.files].filter(f=>f.type.startsWith("image/")).slice(0,8);$("caPreview").innerHTML=customerFiles.map((f,i)=>`<div class="prev"><img src="${URL.createObjectURL(f)}" alt="صورة السيارة ${i+1}"><span class="num">${i+1}</span></div>`).join("");});
 async function customerCompress(file){
  const img=await new Promise((res,rej)=>{const i=new Image;i.onload=()=>{URL.revokeObjectURL(i.src);res(i)};i.onerror=rej;i.src=URL.createObjectURL(file)});
  const max=1800,scale=Math.min(1,max/Math.max(img.width,img.height)),cv=document.createElement("canvas");cv.width=Math.max(1,Math.round(img.width*scale));cv.height=Math.max(1,Math.round(img.height*scale));cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
