@@ -596,7 +596,17 @@ function openPostAd(){
  if(!customerSession){closeAccount();openAccount();accountStatus("خاصك تدخل أو تنشئ حساب قبل رفع الإعلان.","err");return}
  closeAccount();$("postAdModal").classList.add("show");$("caPhone").value=customerProfile?.phone||"";postStatus("",""); 
 }
-function closePostAd(){$("postAdModal").classList.remove("show")}
+function clearCustomerAdForm(){
+  ["caMake","caModel","caYear","caKm","caPrice","caDesc"].forEach(id=>{const el=$(id);if(el)el.value=""});
+  const fuel=$("caFuel");if(fuel)fuel.value="Diesel";
+  const trans=$("caTransmission");if(trans)trans.value="Manual";
+  const phone=$("caPhone");if(phone)phone.value=customerProfile?.phone||"";
+  const photos=$("caPhotos");if(photos)photos.value="";
+  const preview=$("caPreview");if(preview)preview.innerHTML="";
+  customerFiles=[];
+  postStatus("","");
+}
+function closePostAd(){$("postAdModal").classList.remove("show");}
 $("caPhotos")?.addEventListener("change",e=>{customerFiles=[...e.target.files].filter(f=>f.type.startsWith("image/")).slice(0,8);$("caPreview").innerHTML=customerFiles.map((f,i)=>`<div class="prev"><img src="${URL.createObjectURL(f)}" alt="صورة السيارة ${i+1}"><span class="num">${i+1}</span></div>`).join("");});
 async function customerCompress(file){
  const img=await new Promise((res,rej)=>{const i=new Image;i.onload=()=>{URL.revokeObjectURL(i.src);res(i)};i.onerror=rej;i.src=URL.createObjectURL(file)});
@@ -621,7 +631,10 @@ async function publishCustomerAd(){
   const id=crypto.randomUUID(),images=await uploadCustomerImages(customerFiles,id);
   const row={id,user_id:customerSession.user.id,make,model,year,km,price,fuel:$("caFuel").value,transmission:$("caTransmission").value,phone,description:$("caDesc").value.trim(),images,active:true,created_at:new Date().toISOString()};
   const r=await sb.from("customer_listings").insert(row);if(r.error)throw r.error;
-  postStatus("✅ تنشر الإعلان بنجاح.","ok");await loadCustomerListings();renderCustomerListings();setTimeout(closePostAd,1200);
+  postStatus("✅ تنشر الإعلان بنجاح.","ok");
+  await loadCustomerListings();renderCustomerListings();
+  clearCustomerAdForm();
+  setTimeout(closePostAd,1200);
  }catch(e){postStatus("❌ "+(e.message||e),"err")}finally{$("publishCustomerAd").disabled=false}
 }
 let customerListings=[];
@@ -769,8 +782,6 @@ async function submitBid(e){
  // نبدأ بأقل payload ممكن، ثم نزيد الحقول فقط إذا كان schema يسمح بها.
  const base={auction_id:String(a.id),amount};
  const attempts=[
-   base,
-   {...base,phone},
    {...base,phone,status:"pending"},
    {...base,phone,id:crypto.randomUUID(),status:"pending"},
    {...base,phone,id:crypto.randomUUID(),status:"pending",car:((a.make||"")+" "+(a.model||"")).trim(),image:auctionImages(a)[0]||""}
