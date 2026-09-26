@@ -94,6 +94,115 @@
 @media(max-width:900px){.customerGrid,.customerCars{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.customerGrid,.customerCars,.formGrid{grid-template-columns:1fr}.formGrid .full{grid-column:auto}}
 
+
+/* ===== 2-LANGUAGE ROBOT SELECTOR — isolated, responsive, no layout shift ===== */
+.langSelector{
+  position:fixed;
+  left:18px;
+  bottom:22px;
+  width:66px;
+  height:66px;
+  margin:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10050;
+  direction:ltr;
+}
+html[data-lang="en"] .langSelector{left:auto;right:18px}
+.langBtn{
+  width:62px;
+  height:62px;
+  border:1px solid #e2b92b;
+  background:linear-gradient(145deg,#ffd83d,#f3c21f);
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  padding:4px;
+  cursor:pointer;
+  color:#171717;
+  font-family:Arial,Tahoma,sans-serif;
+  font-weight:900;
+  font-size:11px;
+  line-height:1.05;
+  box-shadow:0 8px 22px rgba(0,0,0,.16),0 2px 0 rgba(255,255,255,.65) inset;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.langBtn:hover{transform:translateY(-2px);box-shadow:0 11px 27px rgba(0,0,0,.19),0 2px 0 rgba(255,255,255,.65) inset}
+.langBtn:active{transform:translateY(0)}
+.botIcon{position:relative;width:27px;height:21px;border:2px solid #171717;border-radius:8px;background:#ffe56b;display:block;margin-top:2px}
+.botIcon:before,.botIcon:after{content:"";position:absolute;top:7px;width:4px;height:4px;border-radius:50%;background:#171717}
+.botIcon:before{left:5px}.botIcon:after{right:5px}
+.botAntenna{position:absolute;left:50%;top:-7px;width:2px;height:7px;background:#171717;transform:translateX(-50%)}
+.botAntenna:after{content:"";position:absolute;left:50%;top:-3px;width:5px;height:5px;border-radius:50%;background:#171717;transform:translateX(-50%)}
+.langLabel{display:block;font-size:11px;line-height:12px}
+.langMenu{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  padding:18px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,18,20,.34);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  z-index:10060;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+.langMenu.show{display:flex;animation:langFade .16s ease-out}
+@keyframes langFade{from{opacity:0}to{opacity:1}}
+.langPanel{
+  width:min(88vw,360px);
+  background:#fff;
+  border:1px solid #e8e9eb;
+  border-radius:22px;
+  padding:20px;
+  box-shadow:0 22px 60px rgba(0,0,0,.22);
+  direction:rtl;
+  animation:langPanelPop .18s ease-out;
+}
+@keyframes langPanelPop{from{transform:translateY(8px) scale(.97)}to{transform:translateY(0) scale(1)}}
+.langPanelTitle{margin:0 0 14px;text-align:center;font-size:20px;font-weight:900;color:#171717}
+.langPanelSub{margin:0 0 16px;text-align:center;color:#68707a;font-size:12px}
+.langOption{
+  width:100%;
+  min-height:54px;
+  border:1px solid #e7e9eb;
+  background:#fff;
+  border-radius:14px;
+  padding:10px 13px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  text-align:start;
+  font-weight:900;
+  font-size:15px;
+  color:#222;
+  cursor:pointer;
+  margin-top:8px;
+}
+.langOption:hover{background:#f8fafb;border-color:#d8e1e6}
+.langOption.active{background:#fff8dc;border-color:#efd16a}
+.langFlag{font-size:22px;line-height:1}.langName{flex:1}.langCheck{font-size:16px;color:#1688c2}
+.langClose{width:100%;margin-top:12px;border:0;background:#f4f5f6;border-radius:12px;padding:10px;font-weight:800;color:#555;cursor:pointer}
+html[data-lang="en"] .langPanel{direction:ltr}
+html[data-lang="en"] .langPanelTitle,html[data-lang="en"] .langPanelSub{text-align:center}
+@media(max-width:620px){
+  .langSelector{left:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:58px;height:58px}
+  html[data-lang="en"] .langSelector{left:auto;right:14px}
+  .langBtn{width:56px;height:56px;border-radius:18px}
+  .langPanel{width:min(90vw,350px);padding:18px}
+}
+/* Elegant English typography; no change to layout direction or component positioning. */
+html[data-lang="en"] body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+html[data-lang="en"] .hero h1,html[data-lang="en"] .sectionHead h2,html[data-lang="en"] .auctionHead h2{letter-spacing:-.02em}
 </style>
 
 <!-- Keep this exact variable name: the existing Astro Cars Admin updates it through GitHub. -->
@@ -315,6 +424,7 @@ const ASTRO_AUCTIONS_DATA = [
       <button class="accountBtn gold" id="postAdBtn" type="button">📢 رفع إعلان</button>
     </div>
   </div>
+  
 </header>
 
 <main>
@@ -325,6 +435,22 @@ const ASTRO_AUCTIONS_DATA = [
       <h1>سيارتك القادمة<br><strong>تبدأ من هنا</strong></h1>
       <p class="heroText">مرحبا بك في Astro Cars. اكتشف سيارات مستعملة مختارة بعناية، مع صور حقيقية ومعلومات واضحة حول السنة والكيلومتراج والثمن والمواصفات. تواصل معنا مباشرة عبر واتساب.</p>
       <div class="heroActions"><a class="btn btnPrimary" href="#cars">اكتشف السيارات</a><a class="btn btnGold" href="https://wa.me/212642410917" target="_blank" rel="noopener">واتساب +212 642 410 917</a></div>
+
+<div class="langSelector" id="langSelector">
+      <button class="langBtn" id="langBtn" type="button" aria-label="اختيار اللغة" aria-expanded="false" title="اختيار اللغة">
+        <span class="botIcon" aria-hidden="true"><span class="botAntenna"></span></span>
+        <span class="langLabel">لغات</span>
+      </button>
+      <div class="langMenu" id="langMenu" role="dialog" aria-modal="true" aria-label="اختيار اللغة">
+        <div class="langPanel" role="document">
+          <h3 class="langPanelTitle">اختيار اللغة</h3>
+          <p class="langPanelSub">اختر اللغة التي تريد استعمالها في الموقع</p>
+          <button class="langOption active" type="button" data-lang="ar" role="menuitem"><span class="langFlag">🇲🇦</span><span class="langName">العربية</span><span class="langCheck">✓</span></button>
+          <button class="langOption" type="button" data-lang="en" role="menuitem"><span class="langFlag">🇬🇧</span><span class="langName">English</span><span class="langCheck"></span></button>
+          <button class="langClose" id="langClose" type="button">إغلاق</button>
+        </div>
+      </div>
+    </div>
     </div>
     <aside class="heroCard" aria-label="Astro Cars">
       <div class="heroLogo">ASTRO <span>CARS</span></div><div class="heroLogoSub">QUALITY CARS • BEST SERVICE</div>
@@ -831,6 +957,204 @@ function startAuctionAutoSlides(){
  document.addEventListener("touchstart",e=>{const g=e.target.closest(".auctionPhoto");if(g)sx=e.touches[0].clientX},{passive:true});
  document.addEventListener("touchend",e=>{const g=e.target.closest(".auctionPhoto");if(!g)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45)auctionImg(g.dataset.auctionId,dx<0?1:-1)},{passive:true});
  setInterval(()=>{if(typeof auctionList!=="function")return;document.querySelectorAll(".auctionPhoto[data-auction-id]").forEach(g=>{const a=auctionList().find(x=>String(x.id)===String(g.dataset.auctionId));if(a&&auctionImages(a).length>1)auctionImg(a.id,1)})},4000);
+})();
+</script>
+
+
+<script>
+/* ===== ASTRO CARS: العربية / English — stable language engine ===== */
+(function(){
+  const LANG_KEY="astroCarsLanguage";
+
+  const translations={
+    ar:{
+      "ASTRO CARS":"ASTRO CARS","سيارات مختارة بعناية":"سيارات مختارة بعناية","السيارات":"السيارات","المزاد":"المزاد","لماذا نحن":"لماذا نحن","اتصل بنا":"اتصل بنا",
+      "👤 حسابي":"👤 حسابي","📢 رفع إعلان":"📢 رفع إعلان","👤 إنشاء حساب / دخول":"👤 إنشاء حساب / دخول",
+      "سيارات مستعملة للبيع في الدار البيضاء":"سيارات مستعملة للبيع في الدار البيضاء","سيارتك القادمة":"سيارتك القادمة","تبدأ من هنا":"تبدأ من هنا",
+      "مرحبا بك في Astro Cars. اكتشف سيارات مستعملة مختارة بعناية، مع صور حقيقية ومعلومات واضحة حول السنة والكيلومتراج والثمن والمواصفات. تواصل معنا مباشرة عبر واتساب.":"مرحبا بك في Astro Cars. اكتشف سيارات مستعملة مختارة بعناية، مع صور حقيقية ومعلومات واضحة حول السنة والكيلومتراج والثمن والمواصفات. تواصل معنا مباشرة عبر واتساب.",
+      "اكتشف السيارات":"اكتشف السيارات","واتساب +212 642 410 917":"واتساب +212 642 410 917","سيارة متوفرة":"سيارة متوفرة","تواصل":"تواصل","المغرب":"المغرب",
+      "🔥 مزادات Astro Cars":"🔥 مزادات Astro Cars","مباشر":"مباشر","زايد على السيارة اللي عجباتك وشوف أعلى عرض حالياً.":"زايد على السيارة اللي عجباتك وشوف أعلى عرض حالياً.",
+      "🚘 إعلانات الزبناء":"🚘 إعلانات الزبناء","إعلانات الزبناء الجدد — تظهر هنا فوق السيارات العادية وبعد المزاد.":"إعلانات الزبناء الجدد — تظهر هنا فوق السيارات العادية وبعد المزاد.",
+      "السيارات المتوفرة":"السيارات المتوفرة","جاري تحميل السيارات...":"جاري تحميل السيارات...","🔎 ابحث عن الماركة أو الموديل...":"🔎 ابحث عن الماركة أو الموديل...",
+      "كل أنواع الوقود":"كل أنواع الوقود","الأحدث":"الأحدث","الأرخص":"الأرخص","الأغلى":"الأغلى",
+      "لماذا Astro Cars؟":"لماذا Astro Cars؟","تجربة بسيطة وواضحة للبحث عن سيارتك.":"تجربة بسيطة وواضحة للبحث عن سيارتك.",
+      "صور ومعلومات واضحة":"صور ومعلومات واضحة","كل إعلان يعرض الصور والمعلومات الأساسية للسيارة بطريقة سهلة على الهاتف.":"كل إعلان يعرض الصور والمعلومات الأساسية للسيارة بطريقة سهلة على الهاتف.",
+      "تواصل مباشر":"تواصل مباشر","يمكنك الانتقال مباشرة إلى واتساب للاستفسار عن السيارة المتوفرة.":"يمكنك الانتقال مباشرة إلى واتساب للاستفسار عن السيارة المتوفرة.",
+      "تحديث مستمر":"تحديث مستمر","السيارات المنشورة من لوحة الإدارة تظهر تلقائيا في واجهة الموقع.":"السيارات المنشورة من لوحة الإدارة تظهر تلقائيا في واجهة الموقع.",
+      "مهتم بسيارة؟":"مهتم بسيارة؟","تواصل معنا عبر واتساب للحصول على مزيد من المعلومات.":"تواصل معنا عبر واتساب للحصول على مزيد من المعلومات.",
+      "تواصل عبر واتساب":"تواصل عبر واتساب","ASTRO CARS — سيارات مستعملة للبيع":"ASTRO CARS — سيارات مستعملة للبيع",
+      "حساب Astro Cars":"حساب Astro Cars","أنشئ حساباً مجاناً باش تحتافظ بإعلاناتك وتقدر تديرها من حسابك.":"أنشئ حساباً مجاناً باش تحتافظ بإعلاناتك وتقدر تديرها من حسابك.",
+      "الاسم":"الاسم","رقم الهاتف":"رقم الهاتف","البريد الإلكتروني":"البريد الإلكتروني","كلمة المرور":"كلمة المرور","إنشاء الحساب":"إنشاء الحساب","عندي حساب من قبل؟":"عندي حساب من قبل؟","دخول":"دخول","خروج":"خروج","إعلاناتي":"إعلاناتي",
+      "📢 رفع إعلان سيارة":"📢 رفع إعلان سيارة","عمر معلومات السيارة، اختار حتى 8 صور، ومن بعد الإعلان ديالك غادي يبان في الموقع وحسابك.":"عمر معلومات السيارة، اختار حتى 8 صور، ومن بعد الإعلان ديالك غادي يبان في الموقع وحسابك.",
+      "الماركة *":"الماركة *","الموديل *":"الموديل *","السنة *":"السنة *","الكيلومتراج *":"الكيلومتراج *","الثمن DH *":"الثمن DH *","الوقود":"الوقود","ناقل الحركة":"ناقل الحركة","الوصف":"الوصف","الصور *":"الصور *","📷 اختيار الصور":"📷 اختيار الصور","🚀 نشر الإعلان":"🚀 نشر الإعلان",
+      "المزايدة":"المزايدة","مبلغ المزايدة (DH)":"مبلغ المزايدة (DH)","＋ 1.000 DH":"＋ 1.000 DH","＋ 10.000 DH":"＋ 10.000 DH","− 1.000 DH":"− 1.000 DH","− 10.000 DH":"− 10.000 DH","إرسال المزايدة":"إرسال المزايدة",
+      "تفاصيل السيارة":"تفاصيل السيارة","السنة":"السنة","الكيلومتراج":"الكيلومتراج","غير محدد":"غير محدد","غير محددة":"غير محددة","التفاصيل":"التفاصيل","واتساب":"واتساب","لم تتم إضافة وصف إضافي.":"لم تتم إضافة وصف إضافي.",
+      "Diesel":"Diesel","Essence":"Essence","Hybrid":"Hybrid","Electric":"Electric","Manual":"Manual","Automatic":"Automatic"
+    },
+    en:{
+      "ASTRO CARS":"ASTRO CARS","سيارات مختارة بعناية":"Carefully selected cars","السيارات":"Cars","المزاد":"Auction","لماذا نحن":"Why us","اتصل بنا":"Contact",
+      "👤 حسابي":"👤 My account","📢 رفع إعلان":"📢 Post an ad","👤 إنشاء حساب / دخول":"👤 Create account / Login",
+      "سيارات مستعملة للبيع في الدار البيضاء":"Used cars for sale in Casablanca","سيارتك القادمة":"Your next car","تبدأ من هنا":"Starts here",
+      "مرحبا بك في Astro Cars. اكتشف سيارات مستعملة مختارة بعناية، مع صور حقيقية ومعلومات واضحة حول السنة والكيلومتراج والثمن والمواصفات. تواصل معنا مباشرة عبر واتساب.":"Welcome to Astro Cars. Discover carefully selected used cars with real photos and clear information about the year, mileage, price and specifications. Contact us directly on WhatsApp.",
+      "اكتشف السيارات":"Explore cars","واتساب +212 642 410 917":"WhatsApp +212 642 410 917","سيارة متوفرة":"Cars available","تواصل":"Contact","المغرب":"Morocco",
+      "🔥 مزادات Astro Cars":"🔥 Astro Cars Auctions","مباشر":"Live","زايد على السيارة اللي عجباتك وشوف أعلى عرض حالياً.":"Bid on the car you like and see the current highest offer.",
+      "🚘 إعلانات الزبناء":"🚘 Customer listings","إعلانات الزبناء الجدد — تظهر هنا فوق السيارات العادية وبعد المزاد.":"New customer listings — shown here above regular cars and after the auction.",
+      "السيارات المتوفرة":"Available cars","جاري تحميل السيارات...":"Loading cars...","🔎 ابحث عن الماركة أو الموديل...":"🔎 Search by make or model...",
+      "كل أنواع الوقود":"All fuel types","الأحدث":"Newest","الأرخص":"Lowest price","الأغلى":"Highest price",
+      "لماذا Astro Cars؟":"Why Astro Cars?","تجربة بسيطة وواضحة للبحث عن سيارتك.":"A simple and clear way to find your car.",
+      "صور ومعلومات واضحة":"Clear photos and information","كل إعلان يعرض الصور والمعلومات الأساسية للسيارة بطريقة سهلة على الهاتف.":"Every listing shows the car's essential photos and information in a mobile-friendly way.",
+      "تواصل مباشر":"Direct contact","يمكنك الانتقال مباشرة إلى واتساب للاستفسار عن السيارة المتوفرة.":"Go directly to WhatsApp to ask about an available car.",
+      "تحديث مستمر":"Continuous updates","السيارات المنشورة من لوحة الإدارة تظهر تلقائيا في واجهة الموقع.":"Cars published from the admin panel appear automatically on the website.",
+      "مهتم بسيارة؟":"Interested in a car?","تواصل معنا عبر واتساب للحصول على مزيد من المعلومات.":"Contact us on WhatsApp for more information.",
+      "تواصل عبر واتساب":"Contact via WhatsApp","ASTRO CARS — سيارات مستعملة للبيع":"ASTRO CARS — Used cars for sale",
+      "حساب Astro Cars":"Astro Cars Account","أنشئ حساباً مجاناً باش تحتافظ بإعلاناتك وتقدر تديرها من حسابك.":"Create a free account to keep and manage your listings.",
+      "الاسم":"Name","رقم الهاتف":"Phone number","البريد الإلكتروني":"Email","كلمة المرور":"Password","إنشاء الحساب":"Create account","عندي حساب من قبل؟":"Already have an account?","دخول":"Login","خروج":"Logout","إعلاناتي":"My listings",
+      "📢 رفع إعلان سيارة":"📢 Post a car ad","عمر معلومات السيارة، اختار حتى 8 صور، ومن بعد الإعلان ديالك غادي يبان في الموقع وحسابك.":"Fill in the car information, choose up to 8 photos, and your ad will appear on the website and in your account.",
+      "الماركة *":"Make *","الموديل *":"Model *","السنة *":"Year *","الكيلومتراج *":"Mileage *","الثمن DH *":"Price DH *","الوقود":"Fuel","ناقل الحركة":"Transmission","الوصف":"Description","الصور *":"Photos *","📷 اختيار الصور":"📷 Choose photos","🚀 نشر الإعلان":"🚀 Publish ad",
+      "المزايدة":"Bidding","مبلغ المزايدة (DH)":"Bid amount (DH)","＋ 1.000 DH":"＋ 1,000 DH","＋ 10.000 DH":"＋ 10,000 DH","− 1.000 DH":"− 1,000 DH","− 10.000 DH":"− 10,000 DH","إرسال المزايدة":"Submit bid",
+      "تفاصيل السيارة":"Car details","السنة":"Year","الكيلومتراج":"Mileage","غير محدد":"Not specified","غير محددة":"Not specified","التفاصيل":"Details","واتساب":"WhatsApp","لم تتم إضافة وصف إضافي.":"No additional description was added.",
+      "Diesel":"Diesel","Essence":"Petrol","Hybrid":"Hybrid","Electric":"Electric","Manual":"Manual","Automatic":"Automatic"
+    },
+
+  };
+
+  let current="ar";
+  const originalText=new WeakMap();
+  const originalAttrs=new WeakMap();
+
+  function tr(value){
+    if(value==null) return value;
+    const dict=translations[current]||translations.ar;
+    return Object.prototype.hasOwnProperty.call(dict,value) ? dict[value] : value;
+  }
+
+  function rememberText(node){
+    if(!originalText.has(node)) originalText.set(node,node.nodeValue);
+    return originalText.get(node);
+  }
+
+  function translateTree(root=document.body){
+    if(!root) return;
+
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{
+      acceptNode(node){
+        const p=node.parentElement;
+        if(!p || p.closest("script,style,noscript,textarea,[contenteditable='true'],#langSelector")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const nodes=[];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(node=>{
+      const base=rememberText(node);
+      const trimmed=base.trim();
+      if(!trimmed) return;
+      const translated=tr(trimmed);
+      node.nodeValue=base.replace(trimmed,translated);
+    });
+
+    root.querySelectorAll("input[placeholder],textarea[placeholder],input[aria-label],select[aria-label],button[aria-label],button[title]").forEach(el=>{
+      if(!originalAttrs.has(el)) originalAttrs.set(el,{
+        placeholder:el.getAttribute("placeholder"),
+        aria:el.getAttribute("aria-label"),
+        title:el.getAttribute("title")
+      });
+      const base=originalAttrs.get(el);
+      ["placeholder","aria","title"].forEach(key=>{
+        const attr=key==="aria"?"aria-label":key;
+        const value=base[key];
+        if(value!==null) el.setAttribute(attr,tr(value));
+      });
+    });
+  }
+
+  function setLanguage(lang,save=true){
+    if(!translations[lang]) lang="ar";
+    current=lang;
+
+    /* Keep the original page direction/layout. Only the language changes. */
+    document.documentElement.lang=lang;
+    document.documentElement.dir="rtl";
+    document.documentElement.dataset.lang=lang;
+    document.body.classList.toggle("lang-ltr",lang!=="ar");
+    document.body.dataset.lang=lang;
+
+    if(save){
+      try{localStorage.setItem(LANG_KEY,lang)}catch(e){}
+    }
+
+    document.querySelectorAll(".langOption").forEach(option=>{
+      const active=option.dataset.lang===lang;
+      option.classList.toggle("active",active);
+      const check=option.querySelector(".langCheck");
+      if(check) check.textContent=active?"✓":"";
+    });
+
+    translateTree(document.body);
+  }
+
+  const btn=document.getElementById("langBtn");
+  const menu=document.getElementById("langMenu");
+  const selector=document.getElementById("langSelector");
+
+  if(btn&&menu){
+    btn.addEventListener("click",e=>{
+      e.stopPropagation();
+      const open=!menu.classList.contains("show");
+      menu.classList.toggle("show",open);
+      btn.setAttribute("aria-expanded",String(open));
+    });
+
+    menu.addEventListener("click",e=>{
+      if(e.target===menu){
+        menu.classList.remove("show");
+        btn.setAttribute("aria-expanded","false");
+        return;
+      }
+      const option=e.target.closest(".langOption");
+      if(!option) return;
+      setLanguage(option.dataset.lang,true);
+      menu.classList.remove("show");
+      btn.setAttribute("aria-expanded","false");
+    });
+
+    const closeBtn=document.getElementById("langClose");
+    if(closeBtn) closeBtn.addEventListener("click",()=>{
+      menu.classList.remove("show");
+      btn.setAttribute("aria-expanded","false");
+    });
+
+    document.addEventListener("click",e=>{
+      if(selector&&!selector.contains(e.target)){
+        menu.classList.remove("show");
+        btn.setAttribute("aria-expanded","false");
+      }
+    });
+
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape"){
+        menu.classList.remove("show");
+        btn.setAttribute("aria-expanded","false");
+      }
+    });
+  }
+
+  /* Translate new cards/modals/forms without ever losing their original Arabic text. */
+  const observer=new MutationObserver(mutations=>{
+    if(current==="ar") return;
+    mutations.forEach(m=>{
+      m.addedNodes.forEach(node=>{
+        if(node.nodeType===1 && node.id!=="langSelector") translateTree(node);
+      });
+    });
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
+
+  let saved="ar";
+  try{saved=localStorage.getItem(LANG_KEY)||"ar"}catch(e){}
+  setLanguage(saved,false);
 })();
 </script>
 
