@@ -72,10 +72,10 @@
 
 
 /* ===== CUSTOMER ACCOUNT / LISTINGS ===== */
-.accountBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:absolute;left:0;top:50%;transform:translateY(-50%)}.customerCars .card{height:100%}.customerCars .card .photo{cursor:pointer}.customerOwner{font-size:11px;color:#777;margin-top:8px}.customerBadge{position:absolute;top:12px;right:12px;background:#f4c928;color:#171717;border:1px solid #e7b800;border-radius:9px;padding:6px 9px;font-size:11px;font-weight:900;z-index:4}
+.accountBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:absolute;left:0;top:50%;transform:translateY(-50%)}.customerCars .card{height:100%}.customerCars .card .photo{cursor:pointer}.customerOwner{font-size:11px;color:#777;margin-top:8px}.customerBadge{position:absolute;top:12px;right:12px;background:#f4c928;color:#171717;border:1px solid #e7b800;border-radius:9px;padding:6px 9px;font-size:11px;font-weight:900;z-index:4}.viewBadge{position:absolute;left:10px;top:10px;background:#151515d9;color:#fff;border-radius:9px;padding:5px 8px;font-size:11px;font-weight:800;z-index:4;direction:rtl}
 .accountBtn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 13px;font-weight:800;cursor:pointer}
 .accountBtn.gold{background:#f4c928;border-color:#e7b800}
-.customerSection{padding:34px 0 55px;background:#fafaf8;border-top:1px solid var(--line)}
+.customerSection{display:none!important;padding:34px 0 55px;background:#fafaf8;border-top:1px solid var(--line)}
 .customerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .customerCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px}
 .customerCard h3{margin:0 0 6px}.customerCard p{margin:4px 0;color:var(--muted);font-size:13px}
@@ -647,13 +647,33 @@ renderCars();
  window.detailImg=function(id,delta){const c=cars.find(x=>String(x.id)===String(id));if(!c)return;const a=(c.images||[]).filter(Boolean);if(!a.length)return;const box=$("dg-"+id),im=$("dgi-"+id);let i=Number(box.dataset.index||0);i=(i+delta+a.length)%a.length;box.dataset.index=i;im.src=a[i];document.querySelectorAll("#dg-"+CSS.escape(String(id))+" .thumbs button").forEach((b,j)=>b.classList.toggle("active",j===i));const n=$("dgc-"+id);if(n)n.textContent=(i+1)+" / "+a.length;};
  window.detailSet=function(id,i){const c=cars.find(x=>String(x.id)===String(id));if(!c)return;const a=(c.images||[]).filter(Boolean),box=$("dg-"+id),im=$("dgi-"+id);if(!a[i])return;box.dataset.index=i;im.src=a[i];document.querySelectorAll("#dg-"+CSS.escape(String(id))+" .thumbs button").forEach((b,j)=>b.classList.toggle("active",j===i));const n=$("dgc-"+id);if(n)n.textContent=(i+1)+" / "+a.length;};
  window.renderCars=function(){
-  const q=$("search").value.trim().toLowerCase(),fuel=$("fuel").value,sort=$("sort").value;let list=cars.filter(c=>(!q||((c.make||"")+" "+(c.model||"")+" "+(c.year||"")).toLowerCase().includes(q))&&(!fuel||c.fuel===fuel));
-  if(sort==="low")list.sort((a,b)=>(a.price||0)-(b.price||0));else if(sort==="high")list.sort((a,b)=>(b.price||0)-(a.price||0));else list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));$("count").textContent=list.length+" سيارة";$("heroCount").textContent=list.length;
+  const q=$("search").value.trim().toLowerCase(),fuel=$("fuel").value,sort=$("sort").value;
+  const customerRows=(Array.isArray(customerListings)?customerListings:[]).filter(x=>x.active!==false).map(x=>({
+   id:x.id,make:x.make,model:x.model,year:x.year,km:x.km,price:x.price,fuel:x.fuel,
+   transmission:x.transmission,desc:x.description||"",images:x.images||[],createdAt:new Date(x.created_at||x.createdAt||0).getTime(),
+   wa:x.phone||WA,_customer:true,_ownerId:x.user_id
+  }));
+  let list=[...cars,...customerRows].filter(c=>
+   (!q||((c.make||"")+" "+(c.model||"")+" "+(c.year||"")).toLowerCase().includes(q))&&(!fuel||c.fuel===fuel)
+  );
+  if(sort==="low")list.sort((a,b)=>(a.price||0)-(b.price||0));
+  else if(sort==="high")list.sort((a,b)=>(b.price||0)-(a.price||0));
+  else list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  $("count").textContent=list.length+" سيارة";$("heroCount").textContent=list.length;
   if(!list.length){$("grid").innerHTML='<div class="empty"><strong>لا توجد سيارات مطابقة حاليا.</strong><br>جرب تغيير كلمة البحث أو الفلتر.</div>';return;}
-  $("grid").innerHTML=list.map(c=>{const id=esc(c.id),title=esc((c.make||"")+" "+(c.model||"")),a=(c.images||[]).filter(Boolean),src=esc(a[0]||"");const g=a.length>1?`<button class="gbtn r" onclick="event.stopPropagation();cardImg('${id}',-1)">›</button><button class="gbtn l" onclick="event.stopPropagation();cardImg('${id}',1)">‹</button><span class="gcount" id="gc-${id}">1 / ${a.length}</span>`:"";return `<article class="card"><div class="photo" id="photo-${id}" data-index="0" onclick="showDetail('${id}')"><div class="galleryWrap">${src?`<img id="img-${id}" src="${src}" alt="${title} للبيع - Astro Cars" loading="lazy" decoding="async">`:'<div style="height:100%;display:grid;place-items:center;color:#999">Astro Cars</div>'}${g}</div><span class="badge">${esc(c.year||"—")}</span></div><div class="cardBody"><h3>${title}</h3><div class="meta"><span>📏 ${num(c.km||0)} km</span><span>⛽ ${esc(c.fuel||"غير محدد")}</span><span>⚙️ ${esc(c.transmission||"غير محدد")}</span></div><div class="price">${money(c.price)}</div><div class="cardFoot"><button class="btn btnPrimary" onclick="showDetail('${id}')">التفاصيل</button><a class="btn wa" href="${waLink(c)}" target="_blank" rel="noopener">واتساب</a></div></div></article>`}).join("");
-  list.forEach(c=>{const el=$("photo-"+c.id);if(!el)return;let x=0;let sx=0;el.addEventListener("touchstart",e=>sx=e.touches[0].clientX,{passive:true});el.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45)cardImg(c.id,dx<0?1:-1)},{passive:true});});
+  $("grid").innerHTML=list.map(c=>{
+   const id=esc(c.id),title=esc((c.make||"")+" "+(c.model||"")),a=(c.images||[]).filter(Boolean),src=esc(a[0]||"");
+   const customerTag=c._customer?'<span class="customerBadge">📢 إعلان زبون</span>':"";
+   const views=Number((window.astroCarViewCounts||{})[String(c.id)]||0);
+   const viewTag=`<span class="viewBadge">👁 ${num(views)} مشاهدة</span>`;
+   const g=a.length>1?`<button class="gbtn r" onclick="event.stopPropagation();${c._customer?`customerCardImg('${id}',-1)`:`cardImg('${id}',-1)`}">›</button><button class="gbtn l" onclick="event.stopPropagation();${c._customer?`customerCardImg('${id}',1)`:`cardImg('${id}',1)`}">‹</button><span class="gcount" id="${c._customer?'cgc':'gc'}-${id}">1 / ${a.length}</span>`:"";
+   const details=c._customer?`showCustomerDetail('${id}')`:`showDetail('${id}')`;
+   const wa=c._customer?customerWaLink(c):waLink(c);
+   return `<article class="card"><div class="photo" id="${c._customer?'cphoto':'photo'}-${id}" data-index="0" onclick="${details}"><div class="galleryWrap">${src?`<img id="${c._customer?'cimg':'img'}-${id}" src="${src}" alt="${title} للبيع - Astro Cars" loading="lazy" decoding="async">`:'<div style="height:100%;display:grid;place-items:center;color:#999">Astro Cars</div>'}${g}</div>${customerTag}${viewTag}<span class="badge">${esc(c.year||"—")}</span></div><div class="cardBody"><h3>${title}</h3><div class="meta"><span>📏 ${num(c.km||0)} km</span><span>⛽ ${esc(c.fuel||"غير محدد")}</span><span>⚙️ ${esc(c.transmission||"غير محدد")}</span></div><div class="price">${money(c.price)}</div><div class="cardFoot"><button class="btn btnPrimary" onclick="${details}">التفاصيل</button><a class="btn wa" href="${wa}" target="_blank" rel="noopener">واتساب</a></div></div></article>`;
+  }).join("");
+  list.forEach(c=>{const el=$(c._customer?"cphoto-"+c.id:"photo-"+c.id);if(!el)return;let sx=0;el.addEventListener("touchstart",e=>sx=e.touches[0].clientX,{passive:true});el.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45){if(c._customer)customerCardImg(c.id,dx<0?1:-1);else cardImg(c.id,dx<0?1:-1)}},{passive:true});});
  };
- window.showDetail=function(id){const c=cars.find(v=>String(v.id)===String(id));if(!c)return;const a=(c.images||[]).filter(Boolean),sid=esc(c.id),gallery=a.length?`<div class="detailGallery" id="dg-${sid}" data-index="0"><img id="dgi-${sid}" src="${esc(a[0])}" alt="${esc(c.make||"")} ${esc(c.model||"")} للبيع">${a.length>1?`<button class="gbtn r" onclick="detailImg('${sid}',-1)">›</button><button class="gbtn l" onclick="detailImg('${sid}',1)">‹</button><span class="gcount" id="dgc-${sid}">1 / ${a.length}</span>`:""}</div>${a.length>1?`<div class="thumbs">${a.map((x,i)=>`<button class="${i===0?'active':''}" onclick="detailSet('${sid}',${i})"><img src="${esc(x)}" alt="صورة ${i+1}"></button>`).join("")}</div>`:""}`:"";$('detailTitle').textContent=(c.make||"")+" "+(c.model||"");$('detailBody').innerHTML=gallery+`<div class="detailGrid"><div class="detailItem"><small>السنة</small><b>${esc(c.year||"—")}</b></div><div class="detailItem"><small>الكيلومتراج</small><b>${num(c.km||0)} km</b></div><div class="detailItem"><small>الوقود</small><b>${esc(c.fuel||"—")}</b></div><div class="detailItem"><small>ناقل الحركة</small><b>${esc(c.transmission||"—")}</b></div></div><div class="detailPrice">${money(c.price)}</div><p class="detailText">${esc(c.desc||"لم تتم إضافة وصف إضافي.")}</p><a class="btn btnGold" style="width:100%" href="${waLink(c)}" target="_blank" rel="noopener">تواصل عبر واتساب</a>`;$('detailModal').classList.add('show');
+ window.showDetail=function(id){if(Array.isArray(customerListings)&&customerListings.some(v=>String(v.id)===String(id))){showCustomerDetail(id);return;}const c=cars.find(v=>String(v.id)===String(id));if(!c)return;recordAstroCarView(id,"admin");const a=(c.images||[]).filter(Boolean),sid=esc(c.id),gallery=a.length?`<div class="detailGallery" id="dg-${sid}" data-index="0"><img id="dgi-${sid}" src="${esc(a[0])}" alt="${esc(c.make||"")} ${esc(c.model||"")} للبيع">${a.length>1?`<button class="gbtn r" onclick="detailImg('${sid}',-1)">›</button><button class="gbtn l" onclick="detailImg('${sid}',1)">‹</button><span class="gcount" id="dgc-${sid}">1 / ${a.length}</span>`:""}</div>${a.length>1?`<div class="thumbs">${a.map((x,i)=>`<button class="${i===0?'active':''}" onclick="detailSet('${sid}',${i})"><img src="${esc(x)}" alt="صورة ${i+1}"></button>`).join("")}</div>`:""}`:"";$('detailTitle').textContent=(c.make||"")+" "+(c.model||"");$('detailBody').innerHTML=gallery+`<div class="detailGrid"><div class="detailItem"><small>السنة</small><b>${esc(c.year||"—")}</b></div><div class="detailItem"><small>الكيلومتراج</small><b>${num(c.km||0)} km</b></div><div class="detailItem"><small>الوقود</small><b>${esc(c.fuel||"—")}</b></div><div class="detailItem"><small>ناقل الحركة</small><b>${esc(c.transmission||"—")}</b></div></div><div class="detailPrice">${money(c.price)}</div><p class="detailText">${esc(c.desc||"لم تتم إضافة وصف إضافي.")}</p><a class="btn btnGold" style="width:100%" href="${waLink(c)}" target="_blank" rel="noopener">تواصل عبر واتساب</a>`;$('detailModal').classList.add('show');
  };
  renderCars();
 })();
@@ -664,8 +684,30 @@ renderCars();
 
 <script>
 
+
+/* ===== VIEW COUNTS: per-car view events, deduplicated per browser for 30 minutes ===== */
+window.astroCarViewCounts=window.astroCarViewCounts||{};
+async function loadAstroCarViewCounts(){
+ try{
+  const r=await sb.from("car_views").select("listing_id");
+  if(r.error)throw r.error;
+  const counts={};(r.data||[]).forEach(v=>{const k=String(v.listing_id);counts[k]=(counts[k]||0)+1;});
+  window.astroCarViewCounts=counts;
+ }catch(e){console.warn("car view counts unavailable; apply the SQL setup below:",e.message||e);}
+}
+async function recordAstroCarView(id,kind){
+ const key="astroCarView:"+kind+":"+String(id),now=Date.now();
+ try{const last=Number(localStorage.getItem(key)||0);if(now-last<30*60*1000)return;localStorage.setItem(key,String(now));}catch{}
+ try{
+  const r=await sb.from("car_views").insert({listing_id:String(id),listing_type:kind});
+  if(r.error)throw r.error;
+  window.astroCarViewCounts[String(id)]=(window.astroCarViewCounts[String(id)]||0)+1;
+  if(typeof window.renderCars==="function")window.renderCars();
+ }catch(e){console.warn("view event not saved:",e.message||e);}
+}
+
 /* ===== CUSTOMER ACCOUNTS / CUSTOMER LISTINGS ===== */
-let customerSession=null, customerProfile=null, customerFiles=[];
+let customerSession=null, customerProfile=null, customerFiles=[], pendingAuctionAfterAuth=null;
 async function refreshCustomerSession(){
  const {data}=await sb.auth.getSession();
  customerSession=data?.session||null;
@@ -705,7 +747,9 @@ async function signupCustomer(){
    const ins=await sb.from("profiles").upsert({id:r.data.user.id,name,phone,email,role:"customer"},{onConflict:"id"});
    if(ins.error)console.warn("profile insert:",ins.error);
   }
-  if(r.data?.session){customerSession=r.data.session;await loadCustomerProfile();renderAccountButton();openAccount();accountStatus("✅ تم إنشاء الحساب بنجاح.","ok")}
+  if(r.data?.session){customerSession=r.data.session;await loadCustomerProfile();renderAccountButton();openAccount();accountStatus("✅ تم إنشاء الحساب بنجاح.","ok");
+    if(pendingAuctionAfterAuth){const next=pendingAuctionAfterAuth;pendingAuctionAfterAuth=null;closeAccount();setTimeout(()=>openBid(next),250);}
+  }
   else accountStatus("✅ تم إنشاء الحساب. إذا طلب منك Supabase تأكيد البريد، أكد البريد ثم سجل الدخول.","ok");
  }catch(e){accountStatus("❌ "+(e.message||e),"err")}finally{$("signupBtn").disabled=false}
 }
@@ -715,6 +759,7 @@ async function loginCustomer(){
  try{
   $("loginBtnCustomer").disabled=true;const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;
   customerSession=r.data.session;await loadCustomerProfile();renderAccountButton();openAccount();accountStatus("✅ مرحبا بك.","ok");
+  if(pendingAuctionAfterAuth){const next=pendingAuctionAfterAuth;pendingAuctionAfterAuth=null;closeAccount();setTimeout(()=>openBid(next),250);}
  }catch(e){accountStatus("❌ "+(e.message||e),"err")}finally{$("loginBtnCustomer").disabled=false}
 }
 async function logoutCustomer(){await sb.auth.signOut();customerSession=null;customerProfile=null;customerFiles=[];renderAccountButton();closeAccount();renderCustomerListings()}
@@ -765,7 +810,7 @@ async function publishCustomerAd(){
 }
 let customerListings=[];
 async function loadCustomerListings(){
- try{const r=await sb.from("customer_listings").select("*").eq("active",true).order("created_at",{ascending:false});if(r.error)throw r.error;customerListings=r.data||[];return customerListings}catch(e){console.warn("customer listings:",e);customerListings=[];return []}
+ try{const r=await sb.from("customer_listings").select("*").eq("active",true).order("created_at",{ascending:false});if(r.error)throw r.error;customerListings=r.data||[];if(typeof window.renderCars==="function")window.renderCars();return customerListings}catch(e){console.warn("customer listings:",e);customerListings=[];return []}
 }
 function renderCustomerListings(){
  const root=$("customerCarsGrid");if(!root)return;
@@ -780,7 +825,7 @@ function renderCustomerListings(){
 }
 function customerWaLink(c){const phone=String(c.phone||"").replace(/\D/g,"");const target=phone||WA;const text="السلام عليكم، مهتم بإعلان السيارة "+(c.make||"")+" "+(c.model||"")+" "+(c.year||"");return "https://wa.me/"+target+"?text="+encodeURIComponent(text);}
 function customerCardImg(id,delta){const c=customerListings.find(x=>String(x.id)===String(id)),box=$("cphoto-"+id),im=$("cimg-"+id);if(!c||!box||!im)return;const a=(c.images||[]).filter(Boolean);if(a.length<2)return;let i=(Number(box.dataset.index||0)+delta+a.length)%a.length;box.dataset.index=i;im.src=a[i];const n=$("cgc-"+id);if(n)n.textContent=(i+1)+" / "+a.length;}
-function showCustomerDetail(id){const c=customerListings.find(v=>String(v.id)===String(id));if(!c)return;const a=(c.images||[]).filter(Boolean),sid=esc(c.id);const gallery=a.length?`<div class="detailGallery" id="cdg-${sid}" data-index="0"><img id="cdgi-${sid}" src="${esc(a[0])}" alt="${esc(c.make||"")} ${esc(c.model||"")} للبيع">${a.length>1?`<button class="gbtn r" onclick="customerDetailImg('${sid}',-1)">›</button><button class="gbtn l" onclick="customerDetailImg('${sid}',1)">‹</button><span class="gcount" id="cdgc-${sid}">1 / ${a.length}</span>`:""}</div>${a.length>1?`<div class="thumbs">${a.map((x,i)=>`<button class="${i===0?'active':''}" onclick="customerDetailSet('${sid}',${i})"><img src="${esc(x)}" alt="صورة ${i+1}"></button>`).join("")}</div>`:""}`:"";$("detailTitle").textContent=(c.make||"")+" "+(c.model||"");$("detailBody").innerHTML=gallery+`<div class="detailGrid"><div class="detailItem"><small>السنة</small><b>${esc(c.year||"—")}</b></div><div class="detailItem"><small>الكيلومتراج</small><b>${num(c.km||0)} km</b></div><div class="detailItem"><small>الوقود</small><b>${esc(c.fuel||"—")}</b></div><div class="detailItem"><small>ناقل الحركة</small><b>${esc(c.transmission||"—")}</b></div></div><div class="detailPrice">${money(c.price||0)}</div><p class="detailText">${esc(c.description||"لم تتم إضافة وصف إضافي.")}</p><div class="customerOwner">📢 إعلان مقدم من زبون Astro Cars</div><a class="btn btnGold" style="width:100%;margin-top:10px" href="${customerWaLink(c)}" target="_blank" rel="noopener">تواصل عبر واتساب</a>`;$("detailModal").classList.add("show");}
+function showCustomerDetail(id){const c=customerListings.find(v=>String(v.id)===String(id));if(!c)return;recordAstroCarView(id,"customer");recordAstroCarView(id,"customer");const a=(c.images||[]).filter(Boolean),sid=esc(c.id);const gallery=a.length?`<div class="detailGallery" id="cdg-${sid}" data-index="0"><img id="cdgi-${sid}" src="${esc(a[0])}" alt="${esc(c.make||"")} ${esc(c.model||"")} للبيع">${a.length>1?`<button class="gbtn r" onclick="customerDetailImg('${sid}',-1)">›</button><button class="gbtn l" onclick="customerDetailImg('${sid}',1)">‹</button><span class="gcount" id="cdgc-${sid}">1 / ${a.length}</span>`:""}</div>${a.length>1?`<div class="thumbs">${a.map((x,i)=>`<button class="${i===0?'active':''}" onclick="customerDetailSet('${sid}',${i})"><img src="${esc(x)}" alt="صورة ${i+1}"></button>`).join("")}</div>`:""}`:"";$("detailTitle").textContent=(c.make||"")+" "+(c.model||"");$("detailBody").innerHTML=gallery+`<div class="detailGrid"><div class="detailItem"><small>السنة</small><b>${esc(c.year||"—")}</b></div><div class="detailItem"><small>الكيلومتراج</small><b>${num(c.km||0)} km</b></div><div class="detailItem"><small>الوقود</small><b>${esc(c.fuel||"—")}</b></div><div class="detailItem"><small>ناقل الحركة</small><b>${esc(c.transmission||"—")}</b></div></div><div class="detailPrice">${money(c.price||0)}</div><p class="detailText">${esc(c.description||"لم تتم إضافة وصف إضافي.")}</p><div class="customerOwner">📢 إعلان مقدم من زبون Astro Cars</div><a class="btn btnGold" style="width:100%;margin-top:10px" href="${customerWaLink(c)}" target="_blank" rel="noopener">تواصل عبر واتساب</a>`;$("detailModal").classList.add("show");}
 function customerDetailImg(id,delta){const c=customerListings.find(x=>String(x.id)===String(id)),box=$("cdg-"+id),im=$("cdgi-"+id);if(!c||!box||!im)return;const a=(c.images||[]).filter(Boolean);if(a.length<2)return;let i=(Number(box.dataset.index||0)+delta+a.length)%a.length;box.dataset.index=i;im.src=a[i];const n=$("cdgc-"+id);if(n)n.textContent=(i+1)+" / "+a.length;}
 function customerDetailSet(id,i){const c=customerListings.find(x=>String(x.id)===String(id)),box=$("cdg-"+id),im=$("cdgi-"+id);if(!c||!box||!im)return;const a=(c.images||[]).filter(Boolean);if(!a[i])return;box.dataset.index=i;im.src=a[i];}
 async function loadMyListings(){
@@ -852,6 +897,13 @@ function startAuctionTimer(a){
 }
 function openBid(id){
  const a=auctionList().find(x=>String(x.id)===String(id));if(!a||!auctionActive(a))return alert("هذا المزاد انتهى.");
+ if(!customerSession){
+  pendingAuctionAfterAuth=String(id);
+  closeBid();
+  openAccount();
+  accountStatus("باش تشارك فالمزاد خاصك تنشئ حساب أو تدخل لحسابك أولاً. من بعد الدخول غادي نرجعوك لنفس المزاد.","err");
+  return;
+ }
  activeBidAuction=a;document.getElementById("bidAuctionId").value=id;document.getElementById("bidPhone").value=customerProfile?.phone||"";document.getElementById("bidAmount").value="";
  document.getElementById("bidError").style.display="none";document.getElementById("bidSuccess").style.display="none";
  const min=Math.max(Number(a.startPrice)||0,auctionCurrent(a)+1);document.getElementById("bidAmount").min=min;
@@ -906,7 +958,7 @@ async function submitBid(e){
 
  // بعض نسخ جدول auction_bids عندك ما فيهاش phone/status/id/car/image.
  // نبدأ بأقل payload ممكن، ثم نزيد الحقول فقط إذا كان schema يسمح بها.
- const base={auction_id:String(a.id),amount};
+ const base={auction_id:String(a.id),amount,user_id:customerSession.user.id};
  const attempts=[
    {...base,phone,status:"pending"},
    {...base,phone,id:crypto.randomUUID(),status:"pending"},
@@ -947,7 +999,7 @@ function startAuctionAutoSlides(){
  const run=()=>{auctionList().filter(auctionActive).forEach(a=>{if(auctionImages(a).length>1)auctionImg(String(a.id),1);});};
  setInterval(run,5000);
 }
-(async function(){await readCatalogFromSupabase();renderCars();await initCustomers();await readBidsFromSupabase();renderAuctions();startAuctionAutoSlides();setInterval(async()=>{await readCatalogFromSupabase();renderCars();await readBidsFromSupabase();renderAuctions()},30000)})();
+(async function(){await readCatalogFromSupabase();renderCars();await initCustomers();await loadAstroCarViewCounts();renderCars();await readBidsFromSupabase();renderAuctions();startAuctionAutoSlides();setInterval(async()=>{await readCatalogFromSupabase();renderCars();await loadAstroCarViewCounts();renderCars();await readBidsFromSupabase();renderAuctions()},30000)})();
 </script>
 
 
